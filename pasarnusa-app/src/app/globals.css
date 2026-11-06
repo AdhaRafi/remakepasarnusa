@@ -1,0 +1,362 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-serif: var(--font-decoy, var(--font-fraunces)), "Decoy", Georgia, Cambria, serif;
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+
+  --color-canvas: #F7F3EC;
+  --color-surface: #FFFFFF;
+  --color-sand: #EFE8DC;
+  --color-sand-border: #DFD7CA;
+
+  --color-terakota: #C94B1A;
+  --color-terakota-hover: #B33F14;
+  --color-terakota-subtle: #FDF4EF;
+
+  --color-gold: #B8872A;
+  --color-gold-hover: #9E7220;
+  --color-gold-subtle: #FAF5EB;
+
+  --color-espresso: #1A1008;
+  --color-bark: #6E6254;
+
+  --color-forest: #246E4A;
+  --color-forest-subtle: #EAF4EE;
+
+  --color-crimson: #A82A2A;
+  --color-crimson-subtle: #FBEAEA;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-color: #8a6a4a #efe8dc;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #efe8dc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8a6a4a;
+  border: 3px solid #efe8dc;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #694b32;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background-color: #F7F3EC;
+  color: #1A1008;
+  font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #C94B1A;
+  outline-offset: 2px;
+}
+
+.shadow-artisan {
+  box-shadow: 0 2px 8px -4px rgb(60 30 10 / 10%);
+}
+
+.shadow-artisan-lg {
+  box-shadow: 0 8px 20px -10px rgb(60 30 10 / 18%);
+}
+
+/* 3D Claymorphism & Glassy Dashboard V20 Styles (PasarNusa Warm Artisan Palette) */
+.clay-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 5px rgba(201, 75, 26, 0.04),
+    0 14px 28px -6px rgba(138, 89, 18, 0.08),
+    0 4px 12px rgba(26, 17, 11, 0.03);
+  border-radius: 1.75rem;
+}
+
+.clay-card-flat {
+  background: #FFFFFF;
+  border: 1px solid #EAE4DC;
+  box-shadow:
+    inset 1px 1px 3px rgba(255, 255, 255, 0.95),
+    0 8px 20px -6px rgba(60, 40, 20, 0.06);
+  border-radius: 1.5rem;
+}
+
+.clay-card-hover {
+  transition: all 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.clay-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    inset 2px 2px 6px rgba(255, 255, 255, 0.95),
+    inset -2px -2px 6px rgba(201, 75, 26, 0.06),
+    0 20px 35px -8px rgba(201, 75, 26, 0.14),
+    0 8px 16px rgba(26, 17, 11, 0.04);
+}
+
+.clay-pill-active {
+  background: linear-gradient(135deg, #C94B1A 0%, #B33F14 100%);
+  color: #FFFFFF;
+  box-shadow:
+    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.4),
+    inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.2),
+    0 8px 16px -4px rgba(201, 75, 26, 0.38);
+}
+
+.clay-pill-soft {
+  background: #FDF4EF;
+  color: #C94B1A;
+  border: 1px solid #F5DED2;
+  box-shadow:
+    inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+    inset -1px -1px 2px rgba(201, 75, 26, 0.05),
+    0 2px 6px rgba(201, 75, 26, 0.08);
+}
+
+.clay-btn-primary {
+  background: linear-gradient(135deg, #C94B1A 0%, #B33F14 100%);
+  color: #FFFFFF;
+  box-shadow:
+    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.45),
+    inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.2),
+    0 10px 20px -5px rgba(201, 75, 26, 0.4);
+  transition: all 180ms ease;
+}
+
+.clay-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.5),
+    0 14px 24px -6px rgba(201, 75, 26, 0.45);
+}
+
+.clay-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.clay-input {
+  background: #FAF7F2;
+  border: 1px solid #E8DFD5;
+  box-shadow:
+    inset 2px 2px 4px rgba(60, 40, 20, 0.04),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  transition: all 180ms ease;
+}
+
+.clay-input:focus {
+  background: #FFFFFF;
+  border-color: #C94B1A;
+  box-shadow:
+    0 0 0 3px rgba(201, 75, 26, 0.15),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+/* View Transition API Circular Ripple Animation (TikTok @settigation V14 Style) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+  mix-blend-mode: normal !important;
+}
+
+::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+
+::view-transition-old(root) {
+  z-index: 1 !important;
+}
+
+::view-transition-new(root) {
+  z-index: 999999 !important;
+}
+
+/* Dark Mode Comprehensive Surface & Typography System */
+html.dark {
+  color-scheme: dark;
+  scrollbar-color: #8a6a4a #181310;
+}
+
+html.dark body {
+  background-color: #120F0D;
+  color: #F5EFEB;
+}
+
+/* Dark mode inputs, selects, and textareas */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea {
+  background-color: #1E1714 !important;
+  color: #F5EFEB !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark select option {
+  background-color: #1E1714;
+  color: #F5EFEB;
+}
+
+/* Light cream pills & badges in dark mode */
+html.dark .bg-\[\#F4EFE6\],
+html.dark .bg-\[\#FAF5EB\],
+html.dark .bg-\[\#FDF4EF\],
+html.dark .bg-\[\#EFE8DC\] {
+  background-color: #231B16 !important;
+  color: #E2D8CE !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Common light background surfaces in dark mode */
+html.dark .bg-white {
+  background-color: #1C1613 !important;
+}
+
+html.dark .bg-white\/95,
+html.dark .bg-white\/90,
+html.dark .bg-white\/80 {
+  background-color: rgba(28, 22, 19, 0.95) !important;
+}
+
+html.dark .bg-\[\#FAF7F2\],
+html.dark .bg-\[\#F7F5F0\],
+html.dark .bg-\[\#F7F3EC\],
+html.dark .bg-\[\#FFFDF9\] {
+  background-color: #140F0D !important;
+}
+
+/* Dark mode border borders */
+html.dark .border-\[\#EAE4DC\],
+html.dark .border-\[\#DFD7CA\],
+html.dark .border-\[\#E8DFD5\],
+html.dark .border-\[\#E2DBD1\] {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark mode text colors */
+html.dark .text-\[\#1A110B\],
+html.dark .text-\[\#1A1008\] {
+  color: #F5EFEB !important;
+}
+
+html.dark .text-\[\#6B5E52\],
+html.dark .text-\[\#6E6254\] {
+  color: #B8ADA2 !important;
+}
+
+html.dark .text-\[\#8C7E72\] {
+  color: #9C9084 !important;
+}
+
+/* Dark mode hero & section gradients */
+html.dark .bg-gradient-to-b.from-\[\#FFFDF9\] {
+  background-image: linear-gradient(to bottom, #181310, #14100E, #120F0D) !important;
+}
+
+html.dark .bg-gradient-to-r.from-\[\#FDF4EF\] {
+  background-image: linear-gradient(to right, #241A14, #1E1611, #1A1410) !important;
+}
+
+/* Active filter pill in dark mode: Keep vibrant terracotta with crisp white text! */
+html.dark button.bg-\[\#C94B1A\],
+html.dark a.bg-\[\#C94B1A\] {
+  background-color: #C94B1A !important;
+  color: #FFFFFF !important;
+}
+
+/* Active wishlist filter in dark mode: Keep ochre gold with crisp white text! */
+html.dark button.bg-\[\#8A5912\],
+html.dark a.bg-\[\#8A5912\] {
+  background-color: #B8872A !important;
+  color: #FFFFFF !important;
+}
+
+.admin-stat {
+  transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.admin-stat:hover {
+  transform: translateY(-2px);
+  border-color: #a98a6b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
