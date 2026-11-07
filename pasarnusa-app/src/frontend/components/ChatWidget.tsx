@@ -65,7 +65,7 @@ export default function ChatWidget() {
   const panelRef = useRef<HTMLDivElement>(null);
   const fabRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-scroll when messages change or while loading
+  // Auto-scroll on new messages
   useEffect(() => {
     if (!isOpen) return;
     const el = scrollRef.current;
@@ -74,7 +74,7 @@ export default function ChatWidget() {
     }
   }, [messages, loading, isOpen]);
 
-  // Keyboard shortcut (Escape to close) and outside click handling
+  // Escape to close & click outside handling
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -182,38 +182,36 @@ export default function ChatWidget() {
           role="dialog"
           aria-modal="false"
           aria-label="Chat dengan Nusa, Virtual Assistant PasarNusa"
-          className="absolute bottom-[calc(100%+12px)] right-0 w-[min(94vw,380px)] rounded-3xl border border-[#CBD5E1] dark:border-[#2C241E] bg-[#FAF8F5] dark:bg-[#181310] shadow-2xl overflow-hidden animate-scale-in flex flex-col"
+          className="absolute bottom-[calc(100%+12px)] right-0 w-[min(94vw,380px)] rounded-3xl border border-[#DFD7CA] dark:border-[#2C241E] bg-[#FAF8F5] dark:bg-[#181310] shadow-2xl overflow-hidden animate-scale-in flex flex-col"
           style={{ maxHeight: "calc(100vh - 120px)" }}
         >
-          {/* Header (Inspired by Lena Virtual Assistant with Mascot) */}
-          <div className="relative flex items-center justify-between px-4 py-3 bg-[#BFDBFE] dark:bg-[#1E293B] border-b border-[#93C5FD] dark:border-[#334155] overflow-hidden select-none">
-            {/* Soft decorative background shape */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/20 blur-xl pointer-events-none" />
+          {/* Header (Layout like Lena reference, themed with PasarNusa Deep Espresso & Terracotta) */}
+          <div className="relative flex items-center justify-between px-4 py-3 bg-[#1A1008] dark:bg-[#0D0A08] border-b border-[#2A1D13] dark:border-[#1E1611] select-none">
+            {/* Subtle warm terracotta aura accent */}
+            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-[#C94B1A]/15 blur-xl pointer-events-none" />
 
-            {/* Title & Status */}
+            {/* Left: Title & Status */}
             <div className="flex-1 min-w-0 pr-2 z-10">
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-extrabold text-[#0F172A] dark:text-[#F8FAFC] tracking-tight">
-                  Nusa Virtual Assistant
-                </h3>
-              </div>
-              <p className="text-[11px] text-[#334155] dark:text-[#94A3B8] font-medium flex items-center gap-1.5 mt-0.5">
-                <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse inline-block" />
-                Asisten Belanja PasarNusa • Online
+              <h3 className="text-sm font-bold text-[#F5EFEB] tracking-tight">
+                Nusa Virtual Assistant
+              </h3>
+              <p className="text-[11px] text-[#B8ADA2] font-medium flex items-center gap-1.5 mt-0.5">
+                <span className="w-2 h-2 rounded-full bg-[#246E4A] inline-block" />
+                Asisten Belanja PasarNusa • Siap Membantu
               </p>
             </div>
 
-            {/* Mascot Avatar Peeking from Header */}
+            {/* Right: Mascot Avatar Peeking out from Header (Inspired by reference position) */}
             <div className="flex items-center gap-1 z-10">
-              <div className="cursor-pointer transition-transform hover:scale-105 active:scale-95" title="Nusa Robot Assistant">
-                <NusaMascot size={46} animated={true} />
+              <div className="cursor-pointer transition-transform hover:scale-105 active:scale-95" title="Nusa - Asisten Virtual PasarNusa">
+                <NusaMascot size={46} animated={false} />
               </div>
 
               {/* Reset Conversation Button */}
               <button
                 type="button"
                 onClick={resetChat}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#334155] dark:text-[#94A3B8] hover:bg-white/40 dark:hover:bg-slate-700/50 transition-colors ml-1"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#B8ADA2] hover:text-[#F5EFEB] hover:bg-white/10 transition-colors ml-1"
                 aria-label="Mulai percakapan baru"
                 title="Mulai percakapan baru"
               >
@@ -227,7 +225,7 @@ export default function ChatWidget() {
                   setIsOpen(false);
                   fabRef.current?.focus();
                 }}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#334155] dark:text-[#94A3B8] hover:bg-white/40 dark:hover:bg-slate-700/50 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[#B8ADA2] hover:text-[#F5EFEB] hover:bg-white/10 transition-colors"
                 aria-label="Tutup jendela chat"
               >
                 <X className="h-4 w-4" />
@@ -238,7 +236,7 @@ export default function ChatWidget() {
           {/* Messages Area */}
           <div
             ref={scrollRef}
-            className="flex-1 min-h-[300px] max-h-[380px] overflow-y-auto px-4 py-4 space-y-3.5 overscroll-contain"
+            className="flex-1 min-h-[300px] max-h-[380px] overflow-y-auto px-4 py-4 space-y-3.5 overscroll-contain bg-[#FAF8F5] dark:bg-[#181310]"
             aria-live="polite"
             aria-label="Percakapan"
           >
@@ -255,7 +253,7 @@ export default function ChatWidget() {
                     className={`rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
                       msg.role === "user"
                         ? "bg-[#C94B1A] text-white rounded-br-sm shadow-sm"
-                        : "bg-white dark:bg-[#231B16] text-[#1A1008] dark:text-[#F5EFEB] border border-[#E2E8F0] dark:border-[#2C241E] rounded-bl-sm shadow-sm"
+                        : "bg-white dark:bg-[#231B16] text-[#1A1008] dark:text-[#F5EFEB] border border-[#DFD7CA] dark:border-[#2C241E] rounded-bl-sm shadow-xs"
                     }`}
                   >
                     <p className="whitespace-pre-line">{msg.text}</p>
@@ -268,7 +266,7 @@ export default function ChatWidget() {
                     {msg.products.map((p) => (
                       <div
                         key={p.id}
-                        className="flex gap-2.5 rounded-xl border border-[#E2E8F0] dark:border-[#2A211B] bg-white dark:bg-[#231B16] p-2.5 shadow-sm hover:shadow transition-shadow"
+                        className="flex gap-2.5 rounded-xl border border-[#DFD7CA] dark:border-[#2C241E] bg-white dark:bg-[#231B16] p-2.5 shadow-xs hover:border-[#C94B1A] transition-colors"
                       >
                         <div
                           role="button"
@@ -280,7 +278,7 @@ export default function ChatWidget() {
                               router.push(`/?search=${encodeURIComponent(p.nama_produk)}#katalog`);
                             }
                           }}
-                          className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-[#E2E8F0] dark:border-[#2A211B] cursor-pointer"
+                          className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-[#DFD7CA] dark:border-[#2C241E] cursor-pointer"
                         >
                           <img
                             src={p.foto}
@@ -295,7 +293,7 @@ export default function ChatWidget() {
                           <p className="text-xs font-bold text-[#1A1008] dark:text-[#F5EFEB] truncate">
                             {p.nama_produk}
                           </p>
-                          <p className="text-[10px] text-[#64748B] dark:text-[#94A3B8] truncate">
+                          <p className="text-[10px] text-[#6E6254] dark:text-[#B8ADA2] truncate">
                             {p.asal_daerah} · {p.nama_toko}
                           </p>
                           <div className="mt-1 flex items-center justify-between gap-2">
@@ -308,7 +306,7 @@ export default function ChatWidget() {
                                 onClick={() => handleAddToCart(p)}
                                 className={`min-h-[28px] px-2.5 rounded-lg text-[10px] font-bold transition-all ${
                                   addedId === p.id
-                                    ? "bg-[#16A34A] text-white"
+                                    ? "bg-[#246E4A] text-white"
                                     : "bg-[#FDF4EF] dark:bg-[#2A1B14] text-[#C94B1A] hover:bg-[#C94B1A] hover:text-white"
                                 }`}
                                 aria-label={`Tambah ${p.nama_produk} ke keranjang`}
@@ -316,7 +314,7 @@ export default function ChatWidget() {
                                 {addedId === p.id ? "✓ Masuk Keranjang" : "+ Keranjang"}
                               </button>
                             ) : (
-                              <span className="text-[10px] font-bold text-[#DC2626]">Stok Habis</span>
+                              <span className="text-[10px] font-bold text-[#A82A2A]">Stok Habis</span>
                             )}
                           </div>
                         </div>
@@ -331,7 +329,7 @@ export default function ChatWidget() {
                     <button
                       type="button"
                       onClick={() => router.push(msg.action!.href)}
-                      className="inline-flex items-center min-h-[32px] px-3 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white text-[11px] font-bold shadow-sm transition-colors"
+                      className="inline-flex items-center min-h-[32px] px-3.5 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white text-[11px] font-bold shadow-xs transition-colors"
                     >
                       {msg.action.label}
                     </button>
@@ -346,7 +344,7 @@ export default function ChatWidget() {
                         key={idx}
                         type="button"
                         onClick={() => send(sug)}
-                        className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-white dark:bg-[#231B16] border border-[#CBD5E1] dark:border-[#334155] text-[#334155] dark:text-[#CBD5E1] hover:border-[#C94B1A] hover:text-[#C94B1A] transition-colors shadow-2xs"
+                        className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-white dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] text-[#6E6254] dark:text-[#B8ADA2] hover:border-[#C94B1A] hover:text-[#C94B1A] transition-colors"
                       >
                         {sug}
                       </button>
@@ -354,7 +352,7 @@ export default function ChatWidget() {
                   </div>
                 )}
 
-                <span className="mt-1 text-[9px] text-[#94A3B8] dark:text-[#64748B] pl-9">{msg.time}</span>
+                <span className="mt-1 text-[9px] text-[#8C7E72] dark:text-[#6E6254] pl-9">{msg.time}</span>
               </div>
             ))}
 
@@ -362,12 +360,12 @@ export default function ChatWidget() {
             {loading && (
               <div className="flex items-end gap-2">
                 <div className="flex-shrink-0 mb-1">
-                  <NusaMascot size={28} animated={true} />
+                  <NusaMascot size={28} animated={false} />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white dark:bg-[#231B16] border border-[#E2E8F0] dark:border-[#2C241E] px-3.5 py-2.5 shadow-sm">
+                <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] px-3.5 py-2.5 shadow-xs">
                   <Loader2 className="h-3.5 w-3.5 text-[#C94B1A] animate-spin" />
-                  <span className="text-xs text-[#64748B] dark:text-[#94A3B8]">
-                    Nusa sedang memproses...
+                  <span className="text-xs text-[#6E6254] dark:text-[#B8ADA2]">
+                    Nusa sedang mencari karya...
                   </span>
                 </div>
               </div>
@@ -380,22 +378,22 @@ export default function ChatWidget() {
               e.preventDefault();
               send(input);
             }}
-            className="flex items-center gap-2 border-t border-[#E2E8F0] dark:border-[#2A211B] p-3 bg-white dark:bg-[#1C1613]"
+            className="flex items-center gap-2 border-t border-[#DFD7CA] dark:border-[#2C241E] p-3 bg-white dark:bg-[#1C1613]"
           >
             <input
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Tanya kriya, cara bayar, atau produk..."
+              placeholder="Tulis karya yang dicari atau tanya cara beli..."
               maxLength={500}
-              className="flex-1 h-10 rounded-xl bg-[#F8FAFC] dark:bg-[#231B16] border border-[#CBD5E1] dark:border-[#334155] px-3 text-xs text-[#0F172A] dark:text-[#F8FAFC] placeholder-[#94A3B8] focus:border-[#C94B1A] focus:outline-none transition-colors"
+              className="flex-1 h-10 rounded-xl bg-[#F7F3EC] dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] px-3 text-xs text-[#1A1008] dark:text-[#F5EFEB] placeholder-[#8C7E72] focus:border-[#C94B1A] focus:outline-none transition-colors"
               aria-label="Tulis pertanyaan untuk Nusa"
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C94B1A] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#B33F14] active:scale-95 shadow-sm"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C94B1A] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#B33F14] active:scale-95 shadow-xs"
               aria-label="Kirim pesan"
             >
               <SendHorizontal className="h-4 w-4" fill="currentColor" />
@@ -404,7 +402,7 @@ export default function ChatWidget() {
         </div>
       )}
 
-      {/* Floating Launcher Button */}
+      {/* Floating Launcher Button (PasarNusa Deep Terracotta Theme) */}
       <button
         ref={fabRef}
         type="button"
@@ -415,25 +413,27 @@ export default function ChatWidget() {
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         aria-label={isOpen ? "Tutup chat dengan Nusa" : "Buka chat dengan Nusa, Virtual Assistant PasarNusa"}
-        className="group relative flex items-center gap-2.5 h-14 pl-2 pr-4 rounded-full bg-[#BFDBFE] dark:bg-[#1E293B] border-2 border-[#60A5FA] dark:border-[#3B82F6] text-[#0F172A] dark:text-white shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+        className="group relative flex items-center gap-2.5 h-14 pl-2 pr-4 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white shadow-xl transition-all duration-200 active:scale-95 border border-[#E06D43]"
       >
         {isOpen ? (
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/60 dark:bg-slate-700/60">
-            <X className="h-5 w-5 text-[#0F172A] dark:text-white" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
+            <X className="h-5 w-5 text-white" />
           </div>
         ) : (
           <>
             <div className="relative">
-              <NusaMascot size={42} animated={true} />
-              {/* Online pulse green dot */}
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#16A34A] border-2 border-white dark:border-[#1E293B]" />
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                <NusaMascot size={34} animated={false} />
+              </div>
+              {/* Online indicator */}
+              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#246E4A] border-2 border-[#C94B1A]" />
             </div>
             <div className="text-left hidden sm:block">
-              <p className="text-xs font-black text-[#0F172A] dark:text-[#F8FAFC] leading-none flex items-center gap-1">
+              <p className="text-xs font-black text-white leading-none flex items-center gap-1">
                 Tanya Nusa
-                <Sparkles className="w-3 h-3 text-[#2563EB] dark:text-[#60A5FA]" />
+                <Sparkles className="w-3 h-3 text-[#FCD34D]" />
               </p>
-              <p className="text-[10px] text-[#334155] dark:text-[#94A3B8] font-medium leading-tight mt-0.5">
+              <p className="text-[10px] text-white/80 font-medium leading-tight mt-0.5">
                 Virtual Assistant
               </p>
             </div>
