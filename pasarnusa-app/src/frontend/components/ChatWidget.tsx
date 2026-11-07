@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, SendHorizontal, Loader2, RotateCcw, ChevronDown } from "lucide-react";
+import { Minus, MoreVertical, Send, RotateCcw, Sparkles } from "lucide-react";
 import { useCart } from "@/frontend/context/CartContext";
 import NusaMascot from "./NusaMascot";
 
@@ -30,11 +30,18 @@ interface ChatMessage {
   products?: ChatProduct[];
   action?: { label: string; href: string };
   suggestions?: string[];
-  time: string;
+  timestamp: string;
 }
 
-function now(): string {
-  return new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+function formatTimestamp(d = new Date()): string {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  const seconds = pad(d.getSeconds());
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 const INITIAL_SUGGESTIONS = [
@@ -48,12 +55,13 @@ export default function ChatWidget() {
   const router = useRouter();
   const { addToCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "bot",
-      text: "Halo! Saya Nusa, asisten virtual PasarNusa. Ada karya kriya, wastra tradisional, atau oleh-oleh Nusantara yang ingin kamu cari hari ini?",
+      text: "Halo! Saya Nusa ChatBot, asisten resmi PasarNusa. Ada karya kriya, wastra tradisional, atau informasi belanja yang bisa saya bantu?",
       suggestions: INITIAL_SUGGESTIONS,
-      time: now(),
+      timestamp: formatTimestamp(),
     },
   ]);
   const [input, setInput] = useState("");
@@ -65,7 +73,7 @@ export default function ChatWidget() {
   const panelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-scroll to bottom of messages
+  // Auto-scroll when messages change or loading
   useEffect(() => {
     if (!isOpen) return;
     const el = scrollRef.current;
@@ -91,6 +99,7 @@ export default function ChatWidget() {
         !barRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
+        setShowMenu(false);
       }
     };
     document.addEventListener("keydown", onKeyDown);
@@ -105,7 +114,7 @@ export default function ChatWidget() {
     const text = raw.trim();
     if (!text || loading) return;
 
-    setMessages((prev) => [...prev, { role: "user", text, time: now() }]);
+    setMessages((prev) => [...prev, { role: "user", text, timestamp: formatTimestamp() }]);
     setInput("");
     setLoading(true);
 
@@ -127,7 +136,7 @@ export default function ChatWidget() {
           products: data.products,
           action: data.action,
           suggestions: data.suggestions,
-          time: now(),
+          timestamp: formatTimestamp(),
         },
       ]);
     } catch {
@@ -136,7 +145,7 @@ export default function ChatWidget() {
         {
           role: "bot",
           text: "Maaf, koneksi ke asisten sedang terganggu. Coba kirim ulang pesanmu ya.",
-          time: now(),
+          timestamp: formatTimestamp(),
         },
       ]);
     } finally {
@@ -169,14 +178,15 @@ export default function ChatWidget() {
         role: "bot",
         text: "Percakapan baru telah dimulai. Ada karya kriya atau informasi belanja yang bisa saya bantu?",
         suggestions: INITIAL_SUGGESTIONS,
-        time: now(),
+        timestamp: formatTimestamp(),
       },
     ]);
+    setShowMenu(false);
   };
 
   return (
-    <div className="fixed z-50 bottom-0 right-3 sm:right-6 md:right-8">
-      {/* 1. DOCKED MINIMIZED BAR (Nempel di bawah layar persis seperti referensi) */}
+    <div className="fixed z-50 bottom-0 right-3 sm:right-6 md:right-8 font-sans">
+      {/* 1. DOCKED MINIMIZED BAR (Screenshot 1: Nempel di dasar layar dengan maskot mengintip) */}
       {!isOpen && (
         <button
           ref={barRef}
@@ -187,245 +197,271 @@ export default function ChatWidget() {
           }}
           aria-expanded={false}
           aria-haspopup="dialog"
-          aria-label="Buka Nusa Virtual Assistant"
-          className="group relative flex items-center justify-between gap-3 h-12 pl-4 pr-3 bg-[#1A1008] dark:bg-[#0D0A08] border-t-2 border-x-2 border-b-0 border-[#C94B1A] rounded-t-2xl rounded-b-none shadow-2xl cursor-pointer hover:bg-[#2A180E] transition-all select-none bottom-0"
+          aria-label="Buka Nusa ChatBot"
+          className="group relative flex items-center justify-between gap-3 h-11 pl-4 pr-3 bg-[#C94B1A] dark:bg-[#B33F14] text-white rounded-t-xl rounded-b-none shadow-2xl cursor-pointer hover:bg-[#B33F14] transition-all select-none bottom-0 border-t-2 border-x-2 border-b-0 border-[#E06D43]"
         >
-          {/* Left: Title & Online dot */}
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#246E4A] inline-block shadow-xs" />
-            <span className="text-xs sm:text-sm font-bold text-[#F5EFEB] tracking-tight group-hover:text-white transition-colors">
+            <span className="w-2 h-2 rounded-full bg-[#34D399] inline-block animate-pulse" />
+            <span className="text-xs sm:text-sm font-bold tracking-tight">
               Nusa Virtual Assistant
             </span>
           </div>
 
-          {/* Right: Mascot Peeking out with antenna above the bar */}
           <div className="relative -mt-3.5 -mr-1 flex-shrink-0">
             <NusaMascot size={46} animated={false} />
           </div>
         </button>
       )}
 
-      {/* 2. DOCKED EXPANDED CHAT WINDOW (Nempel di bawah layar, membulat di atas) */}
+      {/* 2. DOCKED EXPANDED CHAT WINDOW (Screenshot 2: Sesuai referensi Lenovo Lena ChatBot) */}
       {isOpen && (
         <div
           ref={panelRef}
           role="dialog"
           aria-modal="false"
-          aria-label="Chat dengan Nusa, Virtual Assistant PasarNusa"
-          className="w-[min(94vw,380px)] rounded-t-2xl rounded-b-none border-t-2 border-x-2 border-b-0 border-[#C94B1A] bg-[#FAF8F5] dark:bg-[#181310] shadow-2xl overflow-hidden flex flex-col bottom-0"
-          style={{ height: "min(560px, 85vh)" }}
+          aria-label="Nusa ChatBot Window"
+          className="w-[min(94vw,370px)] rounded-t-xl rounded-b-none bg-[#140F0C] text-[#F5EFEB] shadow-2xl overflow-hidden flex flex-col bottom-0 border-t-2 border-x-2 border-b-0 border-[#C94B1A]"
+          style={{ height: "min(560px, 86vh)" }}
         >
-          {/* Header: Sits docked on top with mascot peeking out */}
-          <div className="relative flex items-center justify-between px-4 h-13 bg-[#1A1008] dark:bg-[#0D0A08] border-b border-[#2A1D13] select-none flex-shrink-0">
-            {/* Left: Title & Subtitle */}
-            <div className="flex-1 min-w-0 pr-2 z-10">
-              <h3 className="text-sm font-bold text-[#F5EFEB] tracking-tight flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#246E4A] inline-block" />
-                Nusa Virtual Assistant
+          {/* Header Bar: Clean single-line header with title on left and minus dash on right */}
+          <div className="relative flex items-center justify-between px-4 h-12 bg-[#C94B1A] text-white select-none flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#FDE68A]" />
+              <h3 className="text-sm font-bold tracking-tight">
+                Nusa ChatBot
               </h3>
-              <p className="text-[10px] text-[#B8ADA2] font-medium leading-tight mt-0.5">
-                Asisten Belanja PasarNusa • Siap Membantu
-              </p>
             </div>
 
-            {/* Right: Mascot Peeking + Control Buttons */}
-            <div className="flex items-center gap-1 z-10">
-              <div className="relative -mt-3 flex-shrink-0 cursor-pointer" title="Nusa Asisten PasarNusa">
-                <NusaMascot size={46} animated={false} />
-              </div>
-
-              {/* Reset Button */}
-              <button
-                type="button"
-                onClick={resetChat}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#B8ADA2] hover:text-[#F5EFEB] hover:bg-white/10 transition-colors ml-1"
-                aria-label="Mulai percakapan baru"
-                title="Mulai percakapan baru"
-              >
-                <RotateCcw className="h-4 w-4" />
-              </button>
-
-              {/* Minimize / Close Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  barRef.current?.focus();
-                }}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[#B8ADA2] hover:text-[#F5EFEB] hover:bg-white/10 transition-colors"
-                aria-label="Tutup / Minimalkan chat"
-                title="Minimalkan"
-              >
-                <ChevronDown className="h-5 w-5" />
-              </button>
-            </div>
+            {/* Minus Button on Far Right (exact layout from screenshot 2) */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                barRef.current?.focus();
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-white/90 hover:text-white hover:bg-black/15 transition-colors"
+              aria-label="Minimalkan ChatBot"
+              title="Minimalkan"
+            >
+              <Minus className="h-5 w-5 stroke-[2.5]" />
+            </button>
           </div>
 
-          {/* Messages Area */}
+          {/* Messages Area (Screenshot 2: Avatar di kiri, tanggal di atas balon, balon di bawah) */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto px-4 py-4 space-y-3.5 overscroll-contain bg-[#FAF8F5] dark:bg-[#181310]"
+            className="flex-1 overflow-y-auto px-3.5 py-4 space-y-4 overscroll-contain bg-[#0D0A08]"
             aria-live="polite"
             aria-label="Percakapan"
           >
             {messages.map((msg, i) => (
-              <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-                <div className="flex items-end gap-2 max-w-[90%]">
-                  {msg.role === "bot" && (
-                    <div className="flex-shrink-0 mb-1">
+              <div key={i} className="flex flex-col">
+                {msg.role === "bot" ? (
+                  /* Bot Message: Avatar on left, Timestamp above, Bubble below */
+                  <div className="flex items-start gap-2.5 max-w-[92%]">
+                    {/* Circular Mascot Avatar */}
+                    <div className="w-8 h-8 rounded-full bg-[#231B16] border border-[#3A2B22] flex items-center justify-center flex-shrink-0 mt-0.5 overflow-hidden">
                       <NusaMascot size={26} animated={false} />
                     </div>
-                  )}
 
-                  <div
-                    className={`rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
-                      msg.role === "user"
-                        ? "bg-[#C94B1A] text-white rounded-br-sm shadow-xs"
-                        : "bg-white dark:bg-[#231B16] text-[#1A1008] dark:text-[#F5EFEB] border border-[#DFD7CA] dark:border-[#2C241E] rounded-bl-sm shadow-xs"
-                    }`}
-                  >
-                    <p className="whitespace-pre-line">{msg.text}</p>
-                  </div>
-                </div>
+                    <div className="flex-1 min-w-0">
+                      {/* Timestamp above bubble (Screenshot 2 format: YYYY-MM-DD HH:mm:ss) */}
+                      <span className="text-[10px] text-[#A89D91] font-mono block mb-1">
+                        {msg.timestamp}
+                      </span>
 
-                {/* Interactive Product Recommendation Cards */}
-                {msg.products && msg.products.length > 0 && (
-                  <div className="mt-2.5 w-full pl-8 space-y-2">
-                    {msg.products.map((p) => (
-                      <div
-                        key={p.id}
-                        className="flex gap-2.5 rounded-xl border border-[#DFD7CA] dark:border-[#2C241E] bg-white dark:bg-[#231B16] p-2.5 shadow-xs hover:border-[#C94B1A] transition-colors"
-                      >
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => router.push(`/?search=${encodeURIComponent(p.nama_produk)}#katalog`)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              router.push(`/?search=${encodeURIComponent(p.nama_produk)}#katalog`);
-                            }
-                          }}
-                          className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 border border-[#DFD7CA] dark:border-[#2C241E] cursor-pointer"
-                        >
-                          <img
-                            src={p.foto}
-                            alt={p.nama_produk}
-                            className="w-full h-full object-cover transition-transform hover:scale-105"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).src = "/pasar.jpg";
-                            }}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-[#1A1008] dark:text-[#F5EFEB] truncate">
-                            {p.nama_produk}
-                          </p>
-                          <p className="text-[10px] text-[#6E6254] dark:text-[#B8ADA2] truncate">
-                            {p.asal_daerah} · {p.nama_toko}
-                          </p>
-                          <div className="mt-1 flex items-center justify-between gap-2">
-                            <span className="text-xs font-black text-[#C94B1A]">
-                              Rp {p.harga.toLocaleString("id-ID")}
-                            </span>
-                            {p.stok > 0 ? (
-                              <button
-                                type="button"
-                                onClick={() => handleAddToCart(p)}
-                                className={`min-h-[28px] px-2.5 rounded-lg text-[10px] font-bold transition-all ${
-                                  addedId === p.id
-                                    ? "bg-[#246E4A] text-white"
-                                    : "bg-[#FDF4EF] dark:bg-[#2A1B14] text-[#C94B1A] hover:bg-[#C94B1A] hover:text-white"
-                                }`}
-                                aria-label={`Tambah ${p.nama_produk} ke keranjang`}
-                              >
-                                {addedId === p.id ? "✓ Masuk Keranjang" : "+ Keranjang"}
-                              </button>
-                            ) : (
-                              <span className="text-[10px] font-bold text-[#A82A2A]">Stok Habis</span>
-                            )}
-                          </div>
-                        </div>
+                      {/* Bot Message Bubble */}
+                      <div className="rounded-xl rounded-tl-xs bg-[#241C17] border border-[#382C24] px-3.5 py-2.5 text-xs text-[#F5EFEB] leading-relaxed shadow-xs">
+                        <p className="whitespace-pre-line">{msg.text}</p>
                       </div>
-                    ))}
+
+                      {/* Interactive Product Cards if any */}
+                      {msg.products && msg.products.length > 0 && (
+                        <div className="mt-2.5 space-y-2">
+                          {msg.products.map((p) => (
+                            <div
+                              key={p.id}
+                              className="flex gap-2.5 rounded-xl border border-[#382C24] bg-[#1A1410] p-2 shadow-xs hover:border-[#C94B1A] transition-colors"
+                            >
+                              <div
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => router.push(`/?search=${encodeURIComponent(p.nama_produk)}#katalog`)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    router.push(`/?search=${encodeURIComponent(p.nama_produk)}#katalog`);
+                                  }
+                                }}
+                                className="w-13 h-13 rounded-lg overflow-hidden flex-shrink-0 border border-[#382C24] cursor-pointer"
+                              >
+                                <img
+                                  src={p.foto}
+                                  alt={p.nama_produk}
+                                  className="w-full h-full object-cover transition-transform hover:scale-105"
+                                  onError={(e) => {
+                                    (e.currentTarget as HTMLImageElement).src = "/pasar.jpg";
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-[#F5EFEB] truncate">
+                                  {p.nama_produk}
+                                </p>
+                                <p className="text-[10px] text-[#A89D91] truncate">
+                                  {p.asal_daerah} · {p.nama_toko}
+                                </p>
+                                <div className="mt-1 flex items-center justify-between gap-2">
+                                  <span className="text-xs font-black text-[#E06D43]">
+                                    Rp {p.harga.toLocaleString("id-ID")}
+                                  </span>
+                                  {p.stok > 0 ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddToCart(p)}
+                                      className={`min-h-[26px] px-2 rounded-md text-[10px] font-bold transition-all ${
+                                        addedId === p.id
+                                          ? "bg-[#246E4A] text-white"
+                                          : "bg-[#C94B1A] text-white hover:bg-[#B33F14]"
+                                      }`}
+                                      aria-label={`Tambah ${p.nama_produk} ke keranjang`}
+                                    >
+                                      {addedId === p.id ? "✓ Masuk" : "+ Keranjang"}
+                                    </button>
+                                  ) : (
+                                    <span className="text-[10px] font-bold text-[#EF4444]">Habis</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action button */}
+                      {msg.action && (
+                        <div className="mt-2">
+                          <button
+                            type="button"
+                            onClick={() => router.push(msg.action!.href)}
+                            className="inline-flex items-center min-h-[30px] px-3.5 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white text-[11px] font-bold shadow-xs transition-colors"
+                          >
+                            {msg.action.label}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Suggestions Pills */}
+                      {msg.suggestions && msg.suggestions.length > 0 && i === messages.length - 1 && (
+                        <div className="mt-2.5 flex flex-wrap gap-1.5">
+                          {msg.suggestions.map((sug, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => send(sug)}
+                              className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-[#1A1410] border border-[#382C24] text-[#D5C7B5] hover:border-[#C94B1A] hover:text-[#E06D43] transition-colors"
+                            >
+                              {sug}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  /* User Message: Right aligned */
+                  <div className="flex flex-col items-end self-end max-w-[85%]">
+                    <span className="text-[10px] text-[#A89D91] font-mono mb-1">
+                      {msg.timestamp}
+                    </span>
+                    <div className="rounded-xl rounded-tr-xs bg-[#C94B1A] text-white px-3.5 py-2.5 text-xs leading-relaxed shadow-xs">
+                      <p className="whitespace-pre-line">{msg.text}</p>
+                    </div>
                   </div>
                 )}
-
-                {/* Action button */}
-                {msg.action && (
-                  <div className="mt-2 pl-8">
-                    <button
-                      type="button"
-                      onClick={() => router.push(msg.action!.href)}
-                      className="inline-flex items-center min-h-[32px] px-3.5 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white text-[11px] font-bold shadow-xs transition-colors"
-                    >
-                      {msg.action.label}
-                    </button>
-                  </div>
-                )}
-
-                {/* Suggestions Pills */}
-                {msg.suggestions && msg.suggestions.length > 0 && i === messages.length - 1 && (
-                  <div className="mt-2.5 pl-8 flex flex-wrap gap-1.5">
-                    {msg.suggestions.map((sug, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => send(sug)}
-                        className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-white dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] text-[#6E6254] dark:text-[#B8ADA2] hover:border-[#C94B1A] hover:text-[#C94B1A] transition-colors"
-                      >
-                        {sug}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <span className="mt-1 text-[9px] text-[#8C7E72] dark:text-[#6E6254] pl-9">{msg.time}</span>
               </div>
             ))}
 
-            {/* Loading Indicator */}
+            {/* Loading Indicator (Screenshot 2: Avatar di kiri, timestamp di atas, kotak 3 titik di bawah) */}
             {loading && (
-              <div className="flex items-end gap-2">
-                <div className="flex-shrink-0 mb-1">
+              <div className="flex items-start gap-2.5 max-w-[90%]">
+                <div className="w-8 h-8 rounded-full bg-[#231B16] border border-[#3A2B22] flex items-center justify-center flex-shrink-0 mt-0.5 overflow-hidden">
                   <NusaMascot size={26} animated={false} />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] px-3.5 py-2.5 shadow-xs">
-                  <Loader2 className="h-3.5 w-3.5 text-[#C94B1A] animate-spin" />
-                  <span className="text-xs text-[#6E6254] dark:text-[#B8ADA2]">
-                    Nusa sedang mencari karya...
+                <div>
+                  <span className="text-[10px] text-[#A89D91] font-mono block mb-1">
+                    {formatTimestamp()}
                   </span>
+                  {/* The 3 pulsing dots bubble (exact as in screenshot 2) */}
+                  <div className="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl bg-[#241C17] border border-[#382C24]">
+                    <span className="w-2 h-2 rounded-full bg-[#A89D91] animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 rounded-full bg-[#A89D91] animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 rounded-full bg-[#A89D91] animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Input Bar */}
+          {/* Quick Menu Popover (When 3 dots clicked) */}
+          {showMenu && (
+            <div className="border-t border-[#382C24] bg-[#1A1410] p-2 flex items-center justify-between z-20">
+              <span className="text-[11px] text-[#A89D91] pl-2">Mulai ulang obrolan?</span>
+              <button
+                type="button"
+                onClick={resetChat}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#C94B1A] text-white text-[11px] font-bold hover:bg-[#B33F14] transition-colors"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Reset Chat
+              </button>
+            </div>
+          )}
+
+          {/* Input Bar (Screenshot 2: Tiga titik di kiri, placeholder, batas karakter 0/150, kirim di kanan) */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
             }}
-            className="flex items-center gap-2 border-t border-[#DFD7CA] dark:border-[#2C241E] p-3 bg-white dark:bg-[#1C1613] flex-shrink-0"
+            className="flex items-center gap-2 px-3 py-2.5 bg-[#1F1814] border-t border-[#382C24] flex-shrink-0"
           >
+            {/* Three Vertical Dots Menu Button */}
+            <button
+              type="button"
+              onClick={() => setShowMenu((prev) => !prev)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[#A89D91] hover:text-[#F5EFEB] hover:bg-white/5 transition-colors flex-shrink-0"
+              aria-label="Menu Opsi Chat"
+              title="Menu"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+
+            {/* Input Field with 'Ask a question...' / 'Tulis pertanyaan...' placeholder */}
             <input
               ref={inputRef}
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Tulis karya yang dicari atau tanya cara beli..."
-              maxLength={500}
-              className="flex-1 h-10 rounded-xl bg-[#F7F3EC] dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] px-3 text-xs text-[#1A1008] dark:text-[#F5EFEB] placeholder-[#8C7E72] focus:border-[#C94B1A] focus:outline-none transition-colors"
-              aria-label="Tulis pertanyaan untuk Nusa"
-            >
-            </input>
+              onChange={(e) => setInput(e.target.value.slice(0, 150))}
+              placeholder="Ask a question..."
+              maxLength={150}
+              className="flex-1 h-9 bg-transparent border-none text-xs text-[#F5EFEB] placeholder-[#7E7266] focus:outline-none"
+              aria-label="Tulis pertanyaan"
+            />
+
+            {/* Character Counter (e.g. 0/150 as in screenshot 2) */}
+            <span className="text-[11px] text-[#7E7266] font-mono select-none flex-shrink-0">
+              {input.length}/150
+            </span>
+
+            {/* Send Paper Plane Icon */}
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C94B1A] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#B33F14] active:scale-95 shadow-xs flex-shrink-0"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[#C94B1A] hover:text-[#E06D43] disabled:text-[#52463C] disabled:cursor-not-allowed transition-colors flex-shrink-0"
               aria-label="Kirim pesan"
             >
-              <SendHorizontal className="h-4 w-4" fill="currentColor" />
+              <Send className="h-4 w-4" />
             </button>
           </form>
         </div>
