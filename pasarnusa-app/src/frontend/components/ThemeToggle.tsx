@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme } from "@/frontend/context/ThemeContext";
 
 interface ThemeToggleProps {
   mode?: "vertical" | "horizontal" | "compact";
@@ -25,7 +25,7 @@ export default function ThemeToggle({
         whileTap={{ scale: 0.95 }}
         type="button"
         onClick={(e) => toggleTheme(e)}
-        className={`relative h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#201A16] text-[#8A5912] dark:text-[#E09F3E] border border-[#DFD7CA] dark:border-white/10 shadow-xs transition-colors ${className}`}
+        className={`relative h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-[#201A16] text-[#8A5912] dark:text-[#E09F3E] border border-[#DFD7CA] dark:border-white/10 transition-colors ${className}`}
         aria-label={isDark ? "Beralih ke mode terang" : "Beralih ke mode gelap"}
         title={isDark ? "Mode Terang (Light)" : "Mode Gelap (Dark)"}
       >
@@ -54,7 +54,7 @@ export default function ThemeToggle({
         <motion.div
           animate={{ x: isDark ? 32 : 0 }}
           transition={{ type: "spring", stiffness: 450, damping: 28 }}
-          className="absolute left-1 top-1 w-8 h-8 rounded-full bg-[#FAF5EB] dark:bg-[#2C211A] shadow-md border border-[#E8DFD5] dark:border-white/10 pointer-events-none"
+          className="absolute left-1 top-1 w-8 h-8 rounded-full bg-[#FAF5EB] dark:bg-[#2C211A] border border-[#E8DFD5] dark:border-white/10 pointer-events-none"
         />
 
         {/* Light Option Button */}

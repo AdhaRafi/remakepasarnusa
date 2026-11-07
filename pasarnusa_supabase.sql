@@ -91,3 +91,38 @@ INSERT INTO public.orders (id, order_number, id_pembeli, nama_penerima, no_hp, a
 -- SEED DATA: order_items
 INSERT INTO public.order_items (id, order_id, id_produk, nama_produk, harga, qty, subtotal) VALUES (1, 1, 1, 'Blouse Batik Kancing Kerah Sanghai Wanita', 185000, 1, 185000) ON CONFLICT DO NOTHING;
 INSERT INTO public.order_items (id, order_id, id_produk, nama_produk, harga, qty, subtotal) VALUES (2, 2, 1, 'Blouse Batik Kancing Kerah Sanghai Wanita', 185000, 1, 185000) ON CONFLICT DO NOTHING;
+-- =============================================
+-- 5. INTEGRITY FIXES (indexes, sequences, RLS)
+-- =============================================
+
+-- Seed rows insert explicit ids, so advance every BIGSERIAL sequence.
+-- Without this the next INSERT tries id = 1 and fails with a duplicate key.
+SELECT setval(pg_get_serial_sequence('public.users', 'id'), COALESCE((SELECT MAX(id) FROM public.users), 1));
+SELECT setval(pg_get_serial_sequence('public.produk', 'id'), COALESCE((SELECT MAX(id) FROM public.produk), 1));
+SELECT setval(pg_get_serial_sequence('public.orders', 'id'), COALESCE((SELECT MAX(id) FROM public.orders), 1));
+SELECT setval(pg_get_serial_sequence('public.order_items', 'id'), COALESCE((SELECT MAX(id) FROM public.order_items), 1));
+
+CREATE INDEX IF NOT EXISTS idx_produk_penjual ON public.produk(id_penjual);
+CREATE INDEX IF NOT EXISTS idx_orders_pembeli ON public.orders(id_pembeli);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON public.orders(status);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON public.order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_produk ON public.order_items(id_produk);
+
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_produk_updated_at ON public.produk;
+CREATE TRIGGER trg_produk_updated_at
+BEFORE UPDATE ON public.produk
+FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- All reads and writes go through the server service role, so anon access is denied.
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.produk ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;

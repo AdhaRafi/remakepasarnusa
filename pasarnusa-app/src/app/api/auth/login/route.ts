@@ -1,6 +1,6 @@
-import { authService } from "@/services";
-import { apiSuccess, apiError, handleApiError } from "@/lib/api-response";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { authService } from "@/backend/services";
+import { apiSuccess, apiError, handleApiError } from "@/backend/lib/api-response";
+import { checkRateLimit, getClientIp } from "@/backend/lib/rate-limit";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

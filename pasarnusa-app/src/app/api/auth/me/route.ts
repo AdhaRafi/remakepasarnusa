@@ -1,5 +1,5 @@
-import { getSession } from "@/lib/auth";
-import { apiSuccess } from "@/lib/api-response";
+import { getSession } from "@/backend/lib/auth";
+import { apiSuccess } from "@/backend/lib/api-response";
 
 export async function GET() {
   const session = await getSession();

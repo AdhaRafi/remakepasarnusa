@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Product } from "@/lib/db";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { useToast } from "@/components/Toast";
+import { Product } from "@/shared/db";
+import { resolveProductImage } from "@/shared/media";
+import { useCart } from "@/frontend/context/CartContext";
+import { useWishlist } from "@/frontend/context/WishlistContext";
+import { useToast } from "@/frontend/components/Toast";
 import { X, MapPin, Store, ShoppingBag, Plus, Minus, Check, Heart } from "lucide-react";
 
 interface ProductDetailModalProps {
@@ -95,14 +96,14 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-[#DFD7CA] shadow-2xl relative"
+        className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-[#DFD7CA] relative"
       >
         {/* Header Action Buttons: Wishlist & Close */}
         <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
           <button
             type="button"
             onClick={() => toggleWishlist({ id: product.id, nama_produk: product.nama_produk })}
-            className={`p-2.5 rounded-full border shadow-sm transition ${
+            className={`p-2.5 rounded-full border transition ${
               isWishlisted(product.id)
                 ? "bg-[#C94B1A] text-white border-[#C94B1A]"
                 : "bg-white/95 hover:bg-white text-[#1A1008] border-[#DFD7CA]"
@@ -129,14 +130,14 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
           <div className="space-y-3">
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#EFE8DC] border border-[#DFD7CA]/60">
               <img
-                src={`/uploads/produk/${product.foto_produk}`}
+                src={resolveProductImage(product.foto_produk)}
                 alt={product.nama_produk}
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = "/pasar.jpg";
                 }}
               />
-              <span className="absolute top-3 left-3 px-3 py-1 bg-[#1A1008]/85 text-[#EDE6D9] text-xs font-semibold tracking-wider uppercase rounded-full">
+              <span className="absolute top-3 left-3 px-3 py-1 bg-[#1A1008]/85 text-[#EDE6D9] text-xs font-semibold rounded-full">
                 {product.kategori}
               </span>
             </div>
@@ -286,12 +287,12 @@ export default function ProductDetailModal({ product, onClose }: ProductDetailMo
                 type="button"
                 disabled={isOutOfStock}
                 onClick={handleAdd}
-                className={`w-full min-h-[48px] flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider rounded-xl transition ${
+                className={`w-full min-h-[48px] flex items-center justify-center gap-2 text-xs font-bold rounded-xl transition ${
                   isOutOfStock
                     ? "bg-[#DFD7CA] text-[#6E6254] cursor-not-allowed"
                     : added
                     ? "bg-[#246E4A] text-white"
-                    : "bg-[#C94B1A] hover:bg-[#B33F14] text-white shadow-md"
+                    : "bg-[#C94B1A] hover:bg-[#B33F14] text-white"
                 }`}
               >
                 {added ? (

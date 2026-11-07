@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/frontend/context/AuthContext";
 import { LogIn, AlertCircle, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function MasukPage() {
@@ -52,7 +52,7 @@ export default function MasukPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#120F0D] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 rounded-2xl overflow-hidden border border-[#E7DFD4] dark:border-[#2C211A] shadow-xl bg-white dark:bg-[#181310]">
+      <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 rounded-2xl overflow-hidden border border-[#E7DFD4] dark:border-[#2C211A] bg-white dark:bg-[#181310]">
         
         {/* Left Side: Brand & Visual Accent */}
         <div className="hidden md:flex md:col-span-5 bg-[#1A110B] text-[#EDE6D9] p-10 flex-col justify-between relative overflow-hidden">
@@ -103,7 +103,7 @@ export default function MasukPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="login-email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4F44] dark:text-[#C5B8AA]">
+              <label htmlFor="login-email" className="mb-1.5 block text-xs font-bold text-[#5C4F44] dark:text-[#C5B8AA]">
                 Alamat email
               </label>
               <input
@@ -118,7 +118,7 @@ export default function MasukPage() {
             </div>
 
             <div>
-              <label htmlFor="login-password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4F44] dark:text-[#C5B8AA]">
+              <label htmlFor="login-password" className="mb-1.5 block text-xs font-bold text-[#5C4F44] dark:text-[#C5B8AA]">
                 Kata sandi
               </label>
               <div className="relative">
@@ -145,7 +145,7 @@ export default function MasukPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 text-sm font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 text-sm font-bold text-white hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
             >
               <LogIn className="w-4 h-4" />
               <span>{loading ? "Memverifikasi..." : "Masuk ke Akun"}</span>

@@ -30,7 +30,7 @@ export default function Footer() {
 
           {/* Column 1: Kategori */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#C94B1A] dark:text-[#E06334]">
+            <h4 className="text-sm font-semibold text-[#A83B14] dark:text-[#E06334]">
               Kategori Kriya
             </h4>
             <ul className="space-y-2.5 text-xs text-[#6B5C4E] dark:text-[#B3A494]">
@@ -64,7 +64,7 @@ export default function Footer() {
 
           {/* Column 2: Perusahaan */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#C94B1A] dark:text-[#E06334]">
+            <h4 className="text-sm font-semibold text-[#A83B14] dark:text-[#E06334]">
               PasarNusa
             </h4>
             <ul className="space-y-2.5 text-xs text-[#6B5C4E] dark:text-[#B3A494]">
@@ -74,7 +74,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/tentang-kami#pengrajin" className="hover:text-[#C94B1A] dark:hover:text-white transition-colors">
+                <Link href="/tentang-kami" className="hover:text-[#C94B1A] dark:hover:text-white transition-colors">
                   Mitra Pengrajin Desa
                 </Link>
               </li>
@@ -93,13 +93,13 @@ export default function Footer() {
 
           {/* Column 3: Dukungan & Jaminan */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#C94B1A] dark:text-[#E06334]">
+            <h4 className="text-sm font-semibold text-[#A83B14] dark:text-[#E06334]">
               Jaminan Pelanggan
             </h4>
             <div className="space-y-3 text-xs text-[#6B5C4E] dark:text-[#B3A494]">
               <div className="flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#246E4A] dark:text-[#389E6B] flex-shrink-0 mt-0.5" />
-                <span>100% Produk Tangan Asli Pengrajin Terverifikasi</span>
+                <span>Karya pengrajin yang dikurasi langsung dari sentra produksi</span>
               </div>
               <div className="flex items-start gap-2">
                 <Heart className="w-4 h-4 text-[#C94B1A] flex-shrink-0 mt-0.5" />
@@ -115,7 +115,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-6 border-t border-[#E2D6C6] dark:border-[#261B12] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs text-[#827161] dark:text-[#8A7969]">
-          <p>© {new Date().getFullYear()} PasarNusa. Hak cipta dilindungi undang-undang.</p>
+          <p>&copy; {new Date().getFullYear()} PasarNusa. Hak cipta dilindungi undang-undang.</p>
           <p className="flex items-center gap-1.5">
             <span>Didedikasikan untuk Pelestarian Kriya Nusantara</span>
           </p>

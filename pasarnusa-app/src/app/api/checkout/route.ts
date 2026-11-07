@@ -1,6 +1,7 @@
-import { orderService } from "@/services";
-import { getSession } from "@/lib/auth";
-import { apiSuccess, apiError, handleApiError } from "@/lib/api-response";
+import { orderService } from "@/backend/services";
+import { getSession } from "@/backend/lib/auth";
+import { apiSuccess, apiError, handleApiError } from "@/backend/lib/api-response";
+import { checkRateLimit, getClientIp } from "@/backend/lib/rate-limit";
 
 interface DetailedError extends Error {
   details?: unknown;
@@ -9,6 +10,16 @@ interface DetailedError extends Error {
 export async function POST(req: Request) {
   try {
     const session = await getSession();
+    const rateKey = session ? `checkout:user:${session.id}` : `checkout:ip:${getClientIp(req)}`;
+    const rateLimit = checkRateLimit(rateKey, { limit: 10, windowMs: 60 * 1000 });
+
+    if (!rateLimit.allowed) {
+      return apiError(
+        `Terlalu banyak percobaan checkout. Coba lagi dalam ${rateLimit.retryAfterSec} detik.`,
+        429
+      );
+    }
+
     const body = await req.json();
 
     const result = await orderService.processCheckout(session, body);

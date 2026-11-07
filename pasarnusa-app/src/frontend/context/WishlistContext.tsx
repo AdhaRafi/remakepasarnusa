@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useToast } from "@/components/Toast";
+import { useToast } from "@/frontend/components/Toast";
 
 interface WishlistContextType {
   wishlist: number[];

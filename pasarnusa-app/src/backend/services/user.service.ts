@@ -1,5 +1,5 @@
-import { supabaseAdmin } from "@/lib/supabase";
-import { User, UserRole } from "@/types";
+import { supabaseAdmin } from "@/backend/lib/supabase";
+import { User, UserRole } from "@/shared/types";
 
 function sanitizeClean(input?: string | null): string | null {
   if (!input) return null;

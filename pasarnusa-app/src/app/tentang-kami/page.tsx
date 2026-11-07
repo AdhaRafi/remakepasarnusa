@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/frontend/components/Navbar";
+import Footer from "@/frontend/components/Footer";
 import { MapPin, ShoppingBag } from "lucide-react";
 
 export default function TentangKamiPage() {
@@ -23,7 +23,7 @@ export default function TentangKamiPage() {
             <div className="space-y-5 md:pl-6">
               <h2 className="font-serif text-3xl font-semibold leading-tight text-[#1A1008]">Satu tempat untuk melihat katalog lokal</h2>
               <p className="text-base leading-relaxed text-[#493D31]">Setiap produk menampilkan informasi yang tersedia di katalog, seperti nama, kategori, harga, stok, dan daerah asal.</p>
-              <Link href="/#produk" className="inline-flex min-h-11 items-center font-semibold text-[#A83B14] underline underline-offset-4">Lihat katalog</Link>
+              <Link href="/#katalog" className="inline-flex min-h-11 items-center font-semibold text-[#A83B14] underline underline-offset-4">Lihat katalog</Link>
             </div>
           </section>
 
@@ -53,7 +53,7 @@ export default function TentangKamiPage() {
 
             <Link
               href="/daftar"
-              className="inline-flex min-h-11 shrink-0 items-center rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-6 text-sm font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-[0.98]"
+              className="inline-flex min-h-11 shrink-0 items-center rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-6 text-sm font-bold text-white hover:shadow-md transition-all active:scale-[0.98]"
             >
               Daftar Sebagai Penjual
             </Link>

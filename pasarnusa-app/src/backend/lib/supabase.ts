@@ -22,14 +22,4 @@ export const supabaseAdmin = createClient(
   }
 );
 
-// Helper to reliably get next auto-increment ID
-export async function getNextId(table: string): Promise<number> {
-  const { data } = await supabaseAdmin
-    .from(table)
-    .select("id")
-    .order("id", { ascending: false })
-    .limit(1);
-  return (data?.[0]?.id || 0) + 1;
-}
-
 export default supabase;

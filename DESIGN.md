@@ -23,11 +23,11 @@ PasarNusa adalah marketplace terkurasi yang menghubungkan karya artisan, pengraj
   - Border & Dividers: Sand Border (`#DFD7CA`)
 
 ## 4. Typography
-- **Display & Headings**: `Playfair Display` (Serif editorial berkelas dengan sentuhan craftsmanship)
+- **Display & Headings**: `Fraunces` (serif editorial dengan karakter kriya, dipakai lewat `next/font`)
 - **Body & UI**: `Plus Jakarta Sans` (Sangat terbaca, dirancang khusus untuk kenyamanan membaca di perangkat digital)
 
 ## 5. UI & Layout Principles
 - Tombol dan kontrol memiliki target sentuh minimal 44px (memenuhi standar WCAG AA dan mobile responsiveness).
 - Setiap status data (Empty, Loading, Error) memiliki tampilan informatif dan arahan tindakan yang jelas.
-- Tidak menggunakan em dash (`—`) dalam salinan UI.
+- Tidak menggunakan karakter em dash dalam salinan UI.
 - Semua elemen interaktif memiliki fungsi nyata (tidak ada ghost link atau tombol mati).

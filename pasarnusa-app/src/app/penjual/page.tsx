@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { useAuth } from "@/context/AuthContext";
-import { Product, Order } from "@/lib/db";
+import Navbar from "@/frontend/components/Navbar";
+import Footer from "@/frontend/components/Footer";
+import { useAuth } from "@/frontend/context/AuthContext";
+import { Product, Order } from "@/shared/db";
+import { resolveProductImage } from "@/shared/media";
 import {
   Store,
   Plus,
@@ -107,8 +108,8 @@ export default function PenjualPage() {
     try {
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = await res.json();
-      if (res.ok && data.fileName) {
-        setFotoProduk(data.fileName);
+      if (res.ok && (data.url || data.fileName)) {
+        setFotoProduk(data.url || data.fileName);
         setFormError(null);
       } else {
         setFormError(data.error || "Gagal mengunggah foto.");
@@ -130,7 +131,7 @@ export default function PenjualPage() {
         harga,
         stok,
         deskripsi,
-        foto_produk: fotoProduk || "default.jpg",
+        foto_produk: fotoProduk || "/pasar.jpg",
         asal_daerah: asalDaerah,
       };
 
@@ -209,7 +210,7 @@ export default function PenjualPage() {
       <div className="min-h-screen flex flex-col bg-[#FAF7F2] dark:bg-[#120F0D] text-[#1A110B] dark:text-[#FAF7F2] transition-colors">
         <Navbar />
         <main className="flex-1 flex items-center justify-center p-8">
-          <div className="bg-white dark:bg-[#181310] p-8 rounded-2xl border border-[#E7DFD4] dark:border-[#2C211A] text-center max-w-md space-y-4 shadow-xl">
+          <div className="bg-white dark:bg-[#181310] p-8 rounded-2xl border border-[#E7DFD4] dark:border-[#2C211A] text-center max-w-md space-y-4">
             <div className="w-14 h-14 rounded-xl bg-[#FDF2EC] dark:bg-[#251710] text-[#C94B1A] flex items-center justify-center mx-auto border border-[#C94B1A]/20">
               <Store className="w-7 h-7" />
             </div>
@@ -220,7 +221,7 @@ export default function PenjualPage() {
             <div className="pt-2">
               <Link
                 href="/masuk"
-                className="inline-flex h-11 items-center justify-center px-6 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] text-white text-sm font-bold w-full shadow-xs transition-colors"
+                className="inline-flex h-11 items-center justify-center px-6 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] text-white text-sm font-bold w-full transition-colors"
               >
                 Masuk sebagai Penjual
               </Link>
@@ -261,9 +262,9 @@ export default function PenjualPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("produk")}
-                  className={`flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+                  className={`flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition ${
                     activeTab === "produk"
-                      ? "bg-[#C94B1A] text-white shadow-sm"
+                      ? "bg-[#C94B1A] text-white"
                       : "text-[#6E6254] hover:text-[#1A1008]"
                   }`}
                 >
@@ -272,9 +273,9 @@ export default function PenjualPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("pesanan")}
-                  className={`flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition ${
+                  className={`flex-1 md:flex-none px-5 py-2.5 rounded-xl text-xs font-bold transition ${
                     activeTab === "pesanan"
-                      ? "bg-[#C94B1A] text-white shadow-sm"
+                      ? "bg-[#C94B1A] text-white"
                       : "text-[#6E6254] hover:text-[#1A1008]"
                   }`}
                 >
@@ -286,7 +287,7 @@ export default function PenjualPage() {
                 <button
                   type="button"
                   onClick={openAddModal}
-                  className="min-h-[44px] px-5 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shadow-sm flex-shrink-0"
+                  className="min-h-[44px] px-5 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 flex-shrink-0"
                 >
                   <Plus className="w-4 h-4" />
                   Tambah Produk
@@ -343,7 +344,7 @@ export default function PenjualPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-[#DFD7CA] text-[#6E6254] uppercase tracking-wider font-bold">
+                      <tr className="border-b border-[#DFD7CA] text-[#6E6254] font-bold">
                         <th className="py-3 px-3">Produk</th>
                         <th className="py-3 px-3">Kategori</th>
                         <th className="py-3 px-3">Harga</th>
@@ -359,7 +360,7 @@ export default function PenjualPage() {
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-lg bg-[#EFE8DC] overflow-hidden flex-shrink-0 border border-[#DFD7CA]">
                                 <img
-                                  src={`/uploads/produk/${p.foto_produk}`}
+                                  src={resolveProductImage(p.foto_produk)}
                                   alt={p.nama_produk}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
@@ -461,7 +462,7 @@ export default function PenjualPage() {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#DFD7CA]/60 pb-3">
                         <div>
-                          <span className="font-mono font-bold text-[#1A1008]">#{ord.order_number}</span>
+                          <span className="tabular-nums font-bold text-[#1A1008]">#{ord.order_number}</span>
                           <span className="text-[#6E6254] ml-2">Penerima: <strong>{ord.nama_penerima}</strong> ({ord.kota}, {ord.provinsi})</span>
                         </div>
                         <span className="px-3 py-1 bg-[#FAF5EB] text-[#B8872A] font-bold rounded-full capitalize">
@@ -519,9 +520,9 @@ export default function PenjualPage() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1008]/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1A1008]/70"
         >
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto border border-[#DFD7CA] shadow-2xl space-y-5">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto border border-[#DFD7CA] space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-[#DFD7CA]">
               <h2 className="font-serif text-xl font-bold text-[#1A1008]">
                 {editingProduct ? "Edit Karya Kriya" : "Tambah Karya Kriya Baru"}
@@ -544,7 +545,7 @@ export default function PenjualPage() {
 
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                   Nama Produk Kriya *
                 </label>
                 <input
@@ -559,7 +560,7 @@ export default function PenjualPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                  <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                     Rumpun Kategori *
                   </label>
                   <select
@@ -576,7 +577,7 @@ export default function PenjualPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                  <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                     Asal Daerah / Sentra *
                   </label>
                   <input
@@ -590,7 +591,7 @@ export default function PenjualPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                  <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                     Harga (Rp) *
                   </label>
                   <input
@@ -604,7 +605,7 @@ export default function PenjualPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                  <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                     Jumlah Stok Siap Kirim *
                   </label>
                   <input
@@ -619,7 +620,7 @@ export default function PenjualPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                   Foto Produk Kriya
                 </label>
                 <div className="flex items-center gap-3">
@@ -635,7 +636,7 @@ export default function PenjualPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                   Deskripsi & Cerita Produk *
                 </label>
                 <textarea
@@ -659,7 +660,7 @@ export default function PenjualPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 py-3 bg-[#C94B1A] hover:bg-[#B33F14] disabled:opacity-50 text-white rounded-xl text-xs font-bold uppercase tracking-wider"
+                  className="flex-1 py-3 bg-[#C94B1A] hover:bg-[#B33F14] disabled:opacity-50 text-white rounded-xl text-xs font-bold"
                 >
                   {submitting ? "Menyimpan..." : "Simpan Produk"}
                 </button>

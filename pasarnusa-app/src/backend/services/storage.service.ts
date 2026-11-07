@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/backend/lib/supabase";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -35,14 +35,14 @@ export const storageService = {
     } catch (supabaseError) {
       console.warn("Supabase Storage upload warning, falling back to local:", supabaseError);
 
-      // Local disk fallback
-      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      // Local disk fallback, stored per bucket so URLs match the app paths
+      const uploadDir = path.join(process.cwd(), "public", "uploads", bucket);
       await fs.mkdir(uploadDir, { recursive: true });
       const localFilePath = path.join(uploadDir, uniqueFileName);
       await fs.writeFile(localFilePath, fileBuffer);
 
       return {
-        publicUrl: `/uploads/${uniqueFileName}`,
+        publicUrl: `/uploads/${bucket}/${uniqueFileName}`,
         fileName: uniqueFileName,
       };
     }

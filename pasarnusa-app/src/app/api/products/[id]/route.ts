@@ -1,6 +1,6 @@
-import { productService } from "@/services";
-import { getSession } from "@/lib/auth";
-import { apiSuccess, apiError, handleApiError } from "@/lib/api-response";
+import { productService } from "@/backend/services";
+import { getSession } from "@/backend/lib/auth";
+import { apiSuccess, apiError, handleApiError } from "@/backend/lib/api-response";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

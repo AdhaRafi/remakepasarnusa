@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Product } from "@/lib/db";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import { useToast } from "@/components/Toast";
+import { Product } from "@/shared/db";
+import { resolveProductImage } from "@/shared/media";
+import { useCart } from "@/frontend/context/CartContext";
+import { useWishlist } from "@/frontend/context/WishlistContext";
+import { useToast } from "@/frontend/components/Toast";
 import { MapPin, ShoppingBag, Eye, Check, Heart, Store } from "lucide-react";
 
 interface ProductCardProps {
@@ -58,13 +59,13 @@ export default function ProductCard({ product, onViewDetail }: ProductCardProps)
   return (
     <article
       onClick={() => onViewDetail(product)}
-      className="group relative flex flex-col bg-white dark:bg-[#181310] rounded-xl border border-[#E7DFD4] dark:border-[#2C211A] overflow-hidden transition-all duration-300 hover:border-[#C94B1A]/50 hover:shadow-xl hover:-translate-y-1 cursor-pointer"
+      className="group relative flex flex-col bg-white dark:bg-[#181310] rounded-xl border border-[#E7DFD4] dark:border-[#2C211A] overflow-hidden transition-colors hover:border-[#C94B1A] cursor-pointer"
     >
       {/* 3:4 Portrait Image Container (Artisan Editorial Luxury Ratio) */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F3EEE6] dark:bg-[#201814]">
         {product.foto_produk ? (
           <img
-            src={`/uploads/produk/${product.foto_produk}`}
+            src={resolveProductImage(product.foto_produk)}
             alt={product.nama_produk}
             className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${
               isOutOfStock ? "grayscale opacity-50" : ""
@@ -81,7 +82,7 @@ export default function ProductCard({ product, onViewDetail }: ProductCardProps)
 
         {/* Quiet Provenance & Heritage Category Tag */}
         <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 items-start">
-          <span className="rounded-md bg-white/95 dark:bg-[#1A1411]/95 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#1A110B] dark:text-[#FAF7F2] shadow-xs border border-[#E7DFD4]/80 dark:border-[#382B22]">
+          <span className="rounded bg-white/95 dark:bg-[#1A1411]/95 px-2.5 py-1 text-[10px] font-semibold text-[#1A110B] dark:text-[#FAF7F2] border border-[#E7DFD4]/80 dark:border-[#382B22]">
             {product.kategori}
           </span>
         </div>
@@ -93,7 +94,7 @@ export default function ProductCard({ product, onViewDetail }: ProductCardProps)
             e.stopPropagation();
             toggleWishlist({ id: product.id, nama_produk: product.nama_produk });
           }}
-          className={`absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-lg backdrop-blur-md transition-all duration-200 active:scale-90 border shadow-xs ${
+          className={`absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 active:scale-90 border ${
             wish
               ? "bg-[#C94B1A] text-white border-[#C94B1A]"
               : "bg-white/90 dark:bg-[#1A1411]/90 text-[#6B5E52] dark:text-[#B8ADA2] hover:text-[#C94B1A] hover:bg-white border-[#E7DFD4]/80 dark:border-[#382B22]"
@@ -123,8 +124,8 @@ export default function ProductCard({ product, onViewDetail }: ProductCardProps)
 
         {/* Out of Stock Overlay */}
         {isOutOfStock && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#1A110B]/65 backdrop-blur-[2px]">
-            <span className="rounded-md bg-white dark:bg-[#251D18] px-3.5 py-1 text-xs font-bold text-[#A82A2A] dark:text-[#FF8080] shadow-md border border-[#E7DFD4]/60">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#1A110B]/65">
+            <span className="rounded-md bg-white dark:bg-[#251D18] px-3.5 py-1 text-xs font-bold text-[#A82A2A] dark:text-[#FF8080] border border-[#E7DFD4]/60">
               Stok Habis
             </span>
           </div>
@@ -149,7 +150,7 @@ export default function ProductCard({ product, onViewDetail }: ProductCardProps)
         <div className="mt-4 pt-3.5 border-t border-[#EAE3D8] dark:border-[#2C211A] space-y-3">
           <div className="flex items-baseline justify-between">
             <div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8C7E72] dark:text-[#9C9084] block leading-none mb-1">
+              <span className="text-[11px] font-medium text-[#8C7E72] dark:text-[#9C9084] block leading-none mb-1">
                 Harga Pengrajin
               </span>
               <span className="font-serif text-lg sm:text-xl font-bold text-[#1A110B] dark:text-[#FAF7F2] tracking-tight">
@@ -178,8 +179,8 @@ export default function ProductCard({ product, onViewDetail }: ProductCardProps)
                 isOutOfStock
                   ? "bg-[#EAE3D8] dark:bg-[#251D18] text-[#8C7E72] dark:text-[#6E6155] cursor-not-allowed"
                   : added
-                  ? "bg-[#246E4A] text-white shadow-xs"
-                  : "bg-[#C94B1A] hover:bg-[#B33F14] text-white shadow-xs hover:shadow-md"
+                  ? "bg-[#246E4A] text-white"
+                  : "bg-[#C94B1A] hover:bg-[#B33F14] text-white"
               }`}
             >
               {added ? (

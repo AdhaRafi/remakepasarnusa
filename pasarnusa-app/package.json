@@ -15,7 +15,6 @@
     "framer-motion": "^14.9.1",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.61.0",
-    "mysql2": "^3.24.6",
     "next": "15.5.28",
     "react": "19.1.0",
     "react-dom": "19.1.0"

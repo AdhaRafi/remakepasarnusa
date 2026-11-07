@@ -1,5 +1,5 @@
-import { authService } from "@/services";
-import { apiSuccess, handleApiError } from "@/lib/api-response";
+import { authService } from "@/backend/services";
+import { apiSuccess, handleApiError } from "@/backend/lib/api-response";
 
 export async function POST() {
   try {

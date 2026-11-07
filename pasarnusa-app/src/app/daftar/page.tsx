@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/frontend/context/AuthContext";
 import { UserPlus, AlertCircle, ShoppingBag, Store, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function DaftarPage() {
@@ -52,7 +52,7 @@ export default function DaftarPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] dark:bg-[#120F0D] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 rounded-2xl overflow-hidden border border-[#E7DFD4] dark:border-[#2C211A] shadow-xl bg-white dark:bg-[#181310]">
+      <div className="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 rounded-2xl overflow-hidden border border-[#E7DFD4] dark:border-[#2C211A] bg-white dark:bg-[#181310]">
         
         {/* Left Side: Brand Story */}
         <div className="hidden md:flex md:col-span-5 bg-[#1A110B] text-[#EDE6D9] p-10 flex-col justify-between relative overflow-hidden">
@@ -104,7 +104,7 @@ export default function DaftarPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Pilihan Peran */}
             <div>
-              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5C4F44] dark:text-[#C5B8AA]">Daftar sebagai</span>
+              <span className="mb-2 block text-xs font-bold text-[#5C4F44] dark:text-[#C5B8AA]">Daftar sebagai</span>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -112,7 +112,7 @@ export default function DaftarPage() {
                   onClick={() => setRole("pembeli")}
                   className={`min-h-14 px-3.5 text-left flex items-center gap-3 rounded-xl border transition-all ${
                     role === "pembeli"
-                      ? "bg-[#FAF2E6] dark:bg-[#251B14] border-[#B8872A]/40 dark:border-[#B8872A]/30 text-[#1A110B] dark:text-[#FAF7F2] shadow-xs"
+                      ? "bg-[#FAF2E6] dark:bg-[#251B14] border-[#B8872A]/40 dark:border-[#B8872A]/30 text-[#1A110B] dark:text-[#FAF7F2]"
                       : "bg-[#FAF7F2] dark:bg-[#201814] border-[#E7DFD4] dark:border-[#2C211A] text-[#5C4F44] dark:text-[#C5B8AA] hover:bg-[#EAE3D8]"
                   }`}
                 >
@@ -131,7 +131,7 @@ export default function DaftarPage() {
                   onClick={() => setRole("penjual")}
                   className={`min-h-14 px-3.5 text-left flex items-center gap-3 rounded-xl border transition-all ${
                     role === "penjual"
-                      ? "bg-[#FDF2EC] dark:bg-[#251710] border-[#C94B1A]/40 dark:border-[#C94B1A]/30 text-[#1A110B] dark:text-[#FAF7F2] shadow-xs"
+                      ? "bg-[#FDF2EC] dark:bg-[#251710] border-[#C94B1A]/40 dark:border-[#C94B1A]/30 text-[#1A110B] dark:text-[#FAF7F2]"
                       : "bg-[#FAF7F2] dark:bg-[#201814] border-[#E7DFD4] dark:border-[#2C211A] text-[#5C4F44] dark:text-[#C5B8AA] hover:bg-[#EAE3D8]"
                   }`}
                 >
@@ -147,7 +147,7 @@ export default function DaftarPage() {
             </div>
 
             <div>
-              <label htmlFor="register-name" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4F44] dark:text-[#C5B8AA]">
+              <label htmlFor="register-name" className="mb-1.5 block text-xs font-bold text-[#5C4F44] dark:text-[#C5B8AA]">
                 {role === "penjual" ? "Nama toko" : "Nama lengkap"}
               </label>
               <input
@@ -162,7 +162,7 @@ export default function DaftarPage() {
             </div>
 
             <div>
-              <label htmlFor="register-email" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4F44] dark:text-[#C5B8AA]">
+              <label htmlFor="register-email" className="mb-1.5 block text-xs font-bold text-[#5C4F44] dark:text-[#C5B8AA]">
                 Alamat email
               </label>
               <input
@@ -177,7 +177,7 @@ export default function DaftarPage() {
             </div>
 
             <div>
-              <label htmlFor="register-password" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4F44] dark:text-[#C5B8AA]">
+              <label htmlFor="register-password" className="mb-1.5 block text-xs font-bold text-[#5C4F44] dark:text-[#C5B8AA]">
                 Kata sandi
               </label>
               <div className="relative">
@@ -205,7 +205,7 @@ export default function DaftarPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 text-sm font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 text-sm font-bold text-white hover:shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
             >
               <UserPlus className="w-4 h-4" />
               <span>{loading ? "Mendaftarkan Akun..." : "Daftar Akun PasarNusa"}</span>

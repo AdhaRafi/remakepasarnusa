@@ -1,5 +1,5 @@
-import { supabaseAdmin, getNextId } from "@/lib/supabase";
-import { Product, ProductCategory } from "@/types";
+import { supabaseAdmin } from "@/backend/lib/supabase";
+import { Product, ProductCategory } from "@/shared/types";
 
 export interface GetProductsFilter {
   search?: string;
@@ -117,12 +117,9 @@ export const productService = {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "") + `-${Date.now().toString().slice(-4)}`;
 
-    const nextId = await getNextId("produk");
-
     const { data: newProd, error } = await supabaseAdmin
       .from("produk")
       .insert({
-        id: nextId,
         id_penjual: data.id_penjual,
         nama_produk: safeNama,
         slug,
@@ -130,7 +127,7 @@ export const productService = {
         harga: safeHarga,
         stok: safeStok,
         deskripsi: safeDeskripsi,
-        foto_produk: data.foto_produk || "pasar.jpg",
+        foto_produk: data.foto_produk || "/pasar.jpg",
         asal_daerah: safeAsal,
       })
       .select()

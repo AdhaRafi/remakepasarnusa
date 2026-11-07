@@ -1,8 +1,8 @@
 import path from "path";
-import { getSession } from "@/lib/auth";
-import { storageService } from "@/services";
-import { apiSuccess, apiError, handleApiError } from "@/lib/api-response";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { getSession } from "@/backend/lib/auth";
+import { storageService } from "@/backend/services";
+import { apiSuccess, apiError, handleApiError } from "@/backend/lib/api-response";
+import { checkRateLimit } from "@/backend/lib/rate-limit";
 
 function isValidImageBuffer(buffer: Buffer, ext: string): boolean {
   if (buffer.length < 12) return false;

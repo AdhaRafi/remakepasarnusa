@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
-import { MIDTRANS_CLIENT_KEY } from "@/lib/midtrans";
+import Navbar from "@/frontend/components/Navbar";
+import Footer from "@/frontend/components/Footer";
+import { useCart } from "@/frontend/context/CartContext";
+import { useAuth } from "@/frontend/context/AuthContext";
+import { MIDTRANS_CLIENT_KEY } from "@/shared/midtrans";
+import { resolveProductImage } from "@/shared/media";
+import { SHIPPING_OPTIONS, getShippingCost } from "@/shared/shipping";
 import {
   ShoppingBag,
   Trash2,
@@ -46,7 +48,6 @@ export default function KeranjangPage() {
     clearCart,
     totalItems,
     subtotal,
-    totalAmount,
   } = useCart();
 
   const [step, setStep] = useState<"keranjang" | "pengiriman" | "konfirmasi" | "menunggu">("keranjang");
@@ -66,7 +67,12 @@ export default function KeranjangPage() {
   const [province, setProvince] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [notes, setNotes] = useState("");
-  const paymentMethod = "midtrans" as const;
+  const [paymentMethod, setPaymentMethod] = useState<"midtrans" | "cod" | "transfer">(
+    MIDTRANS_CLIENT_KEY ? "midtrans" : "cod"
+  );
+  const [courier, setCourier] = useState(SHIPPING_OPTIONS[0].label);
+  const shippingCost = getShippingCost(courier);
+  const grandTotal = subtotal + shippingCost;
 
   // Load user profile pre-fill if available
   useEffect(() => {
@@ -105,7 +111,7 @@ export default function KeranjangPage() {
         provinsi: province,
         kode_pos: postalCode,
         catatan: notes,
-        kurir: "",
+        kurir: courier,
         metode_pembayaran: paymentMethod,
       };
 
@@ -124,14 +130,16 @@ export default function KeranjangPage() {
         throw new Error(data.error || "Gagal memproses pesanan.");
       }
 
-      // If Midtrans payment
-      if (data.snapToken && window.snap) {
+      clearCart();
+
+      // Midtrans needs the Snap popup. COD and bank transfer finish here.
+      if (paymentMethod === "midtrans" && data.snapToken && window.snap) {
         window.snap.pay(data.snapToken, {
           onSuccess: () => {
             setSuccessOrder({
               orderNumber: data.orderNumber,
               totalAmount: data.totalAmount,
-              paymentMethod: "Pembayaran diterima oleh Midtrans, menunggu verifikasi server",
+              paymentMethod: "Pembayaran diterima Midtrans, menunggu verifikasi server",
             });
             setStep("menunggu");
           },
@@ -160,8 +168,23 @@ export default function KeranjangPage() {
             setStep("menunggu");
           },
         });
+      } else if (paymentMethod === "midtrans") {
+        setSuccessOrder({
+          orderNumber: data.orderNumber,
+          totalAmount: data.totalAmount,
+          paymentMethod: "Pesanan dibuat, tetapi jendela pembayaran tidak terbuka. Buka riwayat pesanan untuk mencoba lagi.",
+        });
+        setStep("menunggu");
       } else {
-        setErrorMessage("Jendela pembayaran belum tersedia. Keranjang tetap tersimpan, coba muat ulang lalu kirim ulang pesanan.");
+        setSuccessOrder({
+          orderNumber: data.orderNumber,
+          totalAmount: data.totalAmount,
+          paymentMethod:
+            paymentMethod === "cod"
+              ? "Bayar di Tempat (COD), siapkan uang tunai saat pesanan tiba"
+              : "Transfer bank, admin akan mengirim instruksi pembayaran",
+        });
+        setStep("konfirmasi");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Terjadi kesalahan saat memproses pesanan.";
@@ -191,12 +214,12 @@ export default function KeranjangPage() {
                 <span className="w-6 h-6 rounded-full border border-current flex items-center justify-center text-xs">1</span>
                 Keranjang Belanja
               </li>
-              <li className="text-[#DFD7CA]">›</li>
+              <li className="text-[#DFD7CA]" aria-hidden="true">&gt;</li>
               <li className={`flex items-center gap-1.5 ${step === "pengiriman" ? "text-[#C94B1A]" : "text-[#6E6254]"}`}>
                 <span className="w-6 h-6 rounded-full border border-current flex items-center justify-center text-xs">2</span>
                 Pengiriman & Pembayaran
               </li>
-              <li className="text-[#DFD7CA]">›</li>
+              <li className="text-[#DFD7CA]" aria-hidden="true">&gt;</li>
               <li className={`flex items-center gap-1.5 ${step === "konfirmasi" || step === "menunggu" ? "text-[#246E4A]" : "text-[#493D31]"}`}>
                 <span className="w-6 h-6 rounded-full border border-current flex items-center justify-center text-xs">3</span>
                 Status Pesanan
@@ -241,13 +264,13 @@ export default function KeranjangPage() {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <Link
                   href="/"
-                  className="flex-1 py-3 text-xs font-bold uppercase tracking-wider text-[#1A1008] bg-[#F7F3EC] hover:bg-[#EFE8DC] border border-[#DFD7CA] rounded-xl transition text-center"
+                  className="flex-1 py-3 text-xs font-bold text-[#1A1008] bg-[#F7F3EC] hover:bg-[#EFE8DC] border border-[#DFD7CA] rounded-xl transition text-center"
                 >
                   Kembali ke Beranda
                 </Link>
                 <Link
                   href="/profil"
-                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 py-3 text-sm font-bold text-white shadow-xs transition-colors"
+                  className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 py-3 text-sm font-bold text-white transition-colors"
                 >
                   Lihat Riwayat Pesanan
                 </Link>
@@ -267,7 +290,7 @@ export default function KeranjangPage() {
               </p>
               <Link
                 href="/#katalog"
-                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-6 py-3 text-sm font-bold text-white shadow-xs transition-colors"
+                className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-6 py-3 text-sm font-bold text-white transition-colors"
               >
                 Lihat Katalog Kriya
               </Link>
@@ -311,7 +334,7 @@ export default function KeranjangPage() {
                           {/* Thumbnail */}
                           <div className="w-20 h-20 rounded-xl bg-[#EFE8DC] overflow-hidden flex-shrink-0 border border-[#DFD7CA]">
                             <img
-                              src={`/uploads/produk/${item.foto_produk}`}
+                              src={resolveProductImage(item.foto_produk)}
                               alt={item.nama_produk}
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -322,7 +345,7 @@ export default function KeranjangPage() {
 
                           {/* Info */}
                           <div className="flex-1 min-w-0">
-                            <span className="text-[11px] font-bold text-[#8A5912] uppercase tracking-wider block">
+                            <span className="text-[11px] font-bold text-[#8A5912] block">
                               {item.kategori}
                             </span>
                             <h3 className="text-sm font-bold text-[#1A1008] truncate">
@@ -375,15 +398,15 @@ export default function KeranjangPage() {
 
                     <div className="pt-4 flex justify-between items-center">
                       <Link
-                        href="/#produk"
-                        className="text-xs font-bold uppercase tracking-wider text-[#C94B1A] hover:underline"
+                        href="/#katalog"
+                        className="text-xs font-bold text-[#C94B1A] hover:underline"
                       >
                         ← Lanjut Belanja
                       </Link>
                       <button
                         type="button"
                         onClick={() => setStep("pengiriman")}
-                        className="min-h-[44px] px-6 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition flex items-center gap-2 shadow-sm"
+                        className="min-h-[44px] px-6 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold rounded-xl transition flex items-center gap-2"
                       >
                         Lanjut ke Pengiriman
                         <ArrowRight className="w-4 h-4" />
@@ -411,7 +434,7 @@ export default function KeranjangPage() {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Nama Penerima *
                           </label>
                           <input
@@ -425,7 +448,7 @@ export default function KeranjangPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Nomor WhatsApp / HP *
                           </label>
                           <input
@@ -439,7 +462,7 @@ export default function KeranjangPage() {
                         </div>
 
                         <div className="sm:col-span-2">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Alamat Lengkap *
                           </label>
                           <textarea
@@ -453,7 +476,7 @@ export default function KeranjangPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Kota / Kabupaten *
                           </label>
                           <input
@@ -467,7 +490,7 @@ export default function KeranjangPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Provinsi *
                           </label>
                           <input
@@ -481,7 +504,7 @@ export default function KeranjangPage() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Kode Pos *
                           </label>
                           <input
@@ -497,7 +520,7 @@ export default function KeranjangPage() {
 
 
                         <div className="sm:col-span-2">
-                          <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                          <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                             Catatan untuk Penjual (Opsional)
                           </label>
                           <input
@@ -518,22 +541,83 @@ export default function KeranjangPage() {
                         Metode Pembayaran
                       </h2>
 
-                      <div className="bg-[#EFE8DC] px-4 py-4 text-base text-[#33271D]">
-                        {MIDTRANS_CLIENT_KEY ? "Pembayaran diproses oleh Midtrans. Status lunas mengikuti konfirmasi penyedia pembayaran." : "Pembayaran online belum tersedia. Pengelola toko perlu mengatur Midtrans terlebih dahulu."}
+                      <div className="space-y-2.5">
+                        {[
+                          {
+                            value: "midtrans" as const,
+                            title: "Pembayaran Online (Midtrans)",
+                            desc: "QRIS, GoPay, ShopeePay, atau Virtual Account",
+                            disabled: !MIDTRANS_CLIENT_KEY,
+                          },
+                          {
+                            value: "cod" as const,
+                            title: "Bayar di Tempat (COD)",
+                            desc: "Bayar tunai saat pesanan tiba di alamat",
+                            disabled: false,
+                          },
+                          {
+                            value: "transfer" as const,
+                            title: "Transfer Bank",
+                            desc: "Transfer manual, instruksi dikirim lewat halaman pesanan",
+                            disabled: false,
+                          },
+                        ].map((option) => (
+                          <label
+                            key={option.value}
+                            className={`flex items-start gap-3 rounded-xl border p-4 transition-colors ${
+                              paymentMethod === option.value
+                                ? "border-[#C94B1A] bg-[#FDF4EF]"
+                                : "border-[#DFD7CA] bg-white"
+                            } ${option.disabled ? "opacity-50" : "cursor-pointer"}`}
+                          >
+                            <input
+                              type="radio"
+                              name="metode_pembayaran"
+                              value={option.value}
+                              checked={paymentMethod === option.value}
+                              disabled={option.disabled}
+                              onChange={() => setPaymentMethod(option.value)}
+                              className="mt-1 accent-[#C94B1A]"
+                            />
+                            <span>
+                              <span className="block text-sm font-bold text-[#1A1008]">{option.title}</span>
+                              <span className="block text-xs text-[#6E6254]">
+                                {option.disabled ? "Belum tersedia, pilih COD atau transfer." : option.desc}
+                              </span>
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
+                          Pilihan Pengiriman
+                        </label>
+                        <select
+                          value={courier}
+                          onChange={(e) => setCourier(e.target.value)}
+                          className="w-full bg-[#F7F3EC] border border-[#DFD7CA] rounded-xl px-3 py-2.5 text-sm text-[#1A1008] focus:border-[#C94B1A] focus:outline-none"
+                        >
+                          {SHIPPING_OPTIONS.map((option) => (
+                            <option key={option.label} value={option.label}>
+                              {option.label} {option.cost === 0 ? "(Gratis)" : `- Rp ${option.cost.toLocaleString("id-ID")}`}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="pt-4 space-y-3">
                         <button
                           type="submit"
-                          disabled={loading || !MIDTRANS_CLIENT_KEY}
-                          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-6 py-3.5 text-sm font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#B8AFA3]"
+                          disabled={loading}
+                          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-6 py-3.5 text-sm font-bold text-white hover:shadow-md transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#B8AFA3]"
                         >
                           {loading ? (
                             <span>Memproses Pesanan...</span>
                           ) : (
                             <>
                               <ShieldCheck className="w-4 h-4" />
-                              Konfirmasi & Bayar (Rp {totalAmount.toLocaleString("id-ID")})
+                              Konfirmasi Pesanan (Rp {grandTotal.toLocaleString("id-ID")})
                             </>
                           )}
                         </button>
@@ -542,7 +626,7 @@ export default function KeranjangPage() {
                           <button
                             type="button"
                             onClick={() => setStep("keranjang")}
-                            className="min-h-[44px] text-xs font-bold uppercase tracking-wider text-[#6E6254] hover:text-[#1A1008] transition"
+                            className="min-h-[44px] text-xs font-bold text-[#6E6254] hover:text-[#1A1008] transition"
                           >
                             ← Kembali ke Daftar Keranjang
                           </button>
@@ -566,16 +650,17 @@ export default function KeranjangPage() {
                       Rp {subtotal.toLocaleString("id-ID")}
                     </span>
                   </div>
-
-
-
+                  <div className="flex justify-between text-[#6E6254]">
+                    <span>Ongkos kirim ({courier})</span>
+                    <span className="font-medium text-[#1A1008]">
+                      {shippingCost === 0 ? "Gratis" : `Rp ${shippingCost.toLocaleString("id-ID")}`}
+                    </span>
+                  </div>
 
                   <div className="pt-4 border-t border-[#DFD7CA] flex justify-between items-baseline">
-                    <div>
-                      <span className="text-sm font-medium text-[#493D31]">Total produk</span>
-                    </div>
+                    <span className="text-sm font-medium text-[#493D31]">Total bayar</span>
                     <span className="text-2xl font-black text-[#C94B1A]">
-                      Rp {totalAmount.toLocaleString("id-ID")}
+                      Rp {grandTotal.toLocaleString("id-ID")}
                     </span>
                   </div>
                 </div>

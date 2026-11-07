@@ -3,13 +3,12 @@
 import React, { useState, useEffect, Suspense, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import ProductCard from "@/components/ProductCard";
-import ProductDetailModal from "@/components/ProductDetailModal";
-import { Product } from "@/lib/db";
-import { useWishlist } from "@/context/WishlistContext";
-import { motion, AnimatePresence } from "framer-motion";
+import Navbar from "@/frontend/components/Navbar";
+import Footer from "@/frontend/components/Footer";
+import ProductCard from "@/frontend/components/ProductCard";
+import ProductDetailModal from "@/frontend/components/ProductDetailModal";
+import { Product } from "@/shared/db";
+import { useWishlist } from "@/frontend/context/WishlistContext";
 import {
   RefreshCw,
   AlertCircle,
@@ -26,12 +25,10 @@ import {
   Grid3X3,
   LayoutGrid,
   RotateCcw,
-  ShieldCheck,
   Truck,
   HeartHandshake,
   ChevronLeft,
   ChevronRight,
-  ArrowRight,
 } from "lucide-react";
 
 function HomeContent() {
@@ -64,9 +61,8 @@ function HomeContent() {
   // Hero Search input
   const [heroSearchInput, setHeroSearchInput] = useState("");
 
-  // Endless Carousel state for Hero Artisan Showcase
+  // Manual carousel state for the hero showcase
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
 
   const heroSlides = useMemo(
     () => [
@@ -118,15 +114,6 @@ function HomeContent() {
     ],
     []
   );
-
-  // Auto-play endless carousel loop
-  useEffect(() => {
-    if (isPaused) return;
-    const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [isPaused, heroSlides.length]);
 
   const handleNextSlide = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -258,18 +245,13 @@ function HomeContent() {
               
               {/* Left Column: Story, Title, Search & Tags */}
               <div className="space-y-6 lg:space-y-8">
-                {/* Verified Artisan Eyebrow */}
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#C94B1A] dark:text-[#E06334]">
-                  Koleksi Terkurasi UMKM 38 Provinsi
-                </p>
-
                 {/* Hero Title */}
                 <div className="space-y-4">
                   <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1A110B] dark:text-[#FAF7F2] leading-[1.08]">
-                    Mahakarya Kriya, Wastra &amp; Cita Rasa <span className="text-[#C94B1A] italic">Nusantara</span>
+                    Mahakarya Kriya Nusantara
                   </h1>
-                  <p className="max-w-xl text-base sm:text-lg leading-relaxed text-[#5C4F44] dark:text-[#C5B8AA]">
-                    Jembatan langsung antara pengrajin tradisional desa dengan pencinta karya adiluhung. Dari batik cap Pekalongan, tenun ikat Sumba, tembikar Kasongan, hingga robusta lereng Gunung Ijen.
+                  <p className="max-w-xl text-lg leading-relaxed text-[#5C4F44] dark:text-[#C5B8AA]">
+                    PasarNusa adalah jembatan antara pengrajin tradisional desa dan pencinta karya adiluhung: batik cap Pekalongan, tenun ikat Sumba, tembikar Kasongan, hingga robusta lereng Gunung Ijen.
                   </p>
                 </div>
 
@@ -285,15 +267,14 @@ function HomeContent() {
                       value={heroSearchInput}
                       onChange={(e) => setHeroSearchInput(e.target.value)}
                       placeholder="Cari batik tulis, tenun Sumba, gerabah..."
-                      className="w-full h-12 pl-11 pr-4 bg-white dark:bg-[#1A1411] border border-[#D8CEBF] dark:border-[#2C211A] rounded-full text-sm text-[#1A110B] dark:text-[#FAF7F2] placeholder-[#8C7E72] dark:placeholder-[#A89887] focus:border-[#C94B1A] focus:ring-1 focus:ring-[#C94B1A] focus:outline-none transition-all shadow-xs"
+                      className="w-full h-12 pl-11 pr-4 bg-white dark:bg-[#1A1411] border border-[#D8CEBF] dark:border-[#2C211A] rounded-lg text-sm text-[#1A110B] dark:text-[#FAF7F2] placeholder-[#8C7E72] dark:placeholder-[#A89887] focus:border-[#C94B1A] focus:ring-1 focus:ring-[#C94B1A] focus:outline-none transition-colors"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="h-12 px-7 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white text-sm font-bold tracking-wide shadow-xs hover:shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 flex-shrink-0"
+                    className="h-12 px-7 rounded-lg bg-[#C94B1A] hover:bg-[#B33F14] text-white text-sm font-bold transition-colors active:scale-[0.98] flex items-center justify-center gap-2 flex-shrink-0"
                   >
-                    <span>Jelajahi Karya</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <span>Cari Karya</span>
                   </button>
                 </form>
 
@@ -313,7 +294,7 @@ function HomeContent() {
                         setHeroSearchInput(tag.query);
                         router.push(`/?search=${encodeURIComponent(tag.query)}#katalog`);
                       }}
-                      className="rounded-full bg-white dark:bg-[#1A1411] border border-[#E0D7CB] dark:border-[#2C211A] px-3.5 py-1 font-medium text-[#1A110B] dark:text-[#FAF7F2] hover:border-[#C94B1A] hover:text-[#C94B1A] transition-colors shadow-2xs"
+                      className="rounded bg-white dark:bg-[#1A1411] border border-[#E0D7CB] dark:border-[#2C211A] px-3.5 py-1 font-medium text-[#1A110B] dark:text-[#FAF7F2] hover:border-[#C94B1A] hover:text-[#C94B1A] transition-colors"
                     >
                       {tag.label}
                     </button>
@@ -322,52 +303,43 @@ function HomeContent() {
               </div>
 
               {/* Right Column: Interactive Artisan Showcase Endless Carousel */}
-              <div
-                className="relative"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
-              >
+              <div className="relative">
                 {/* Main Featured Showcase Card */}
-                <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] shadow-xl p-3 sm:p-4 transition-all">
+                <div className="relative rounded-2xl overflow-hidden bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] p-3 sm:p-4">
                   
                   {/* Top Slide Stage with Framer Motion Endless Transition */}
                   <div
                     onClick={() => {
                       const p = products.find((item) => item.id === heroSlides[currentSlideIndex].id);
-                      if (p) setSelectedProduct(p);
+                      if (p) {
+                        setSelectedProduct(p);
+                      } else {
+                        router.push(`/?search=${encodeURIComponent(heroSlides[currentSlideIndex].title)}#katalog`);
+                      }
                     }}
                     className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#F3EEE6] dark:bg-[#201814] cursor-pointer group"
                   >
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={currentSlideIndex}
-                        initial={{ opacity: 0, scale: 1.04 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        transition={{ duration: 0.5, ease: "easeOut" }}
-                        className="absolute inset-0"
-                      >
-                        <img
-                          src={heroSlides[currentSlideIndex].image}
-                          alt={heroSlides[currentSlideIndex].title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
-                      </motion.div>
-                    </AnimatePresence>
+                    <div className="absolute inset-0">
+                      <img
+                        src={heroSlides[currentSlideIndex].image}
+                        alt={heroSlides[currentSlideIndex].title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+                    </div>
 
                     {/* Top Left: Provenance Badge */}
-                    <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3.5 py-1 text-xs font-semibold text-white border border-white/10 shadow-sm pointer-events-none">
+                    <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 rounded bg-black/70 px-3 py-1 text-xs font-semibold text-white pointer-events-none">
                       <MapPin className="w-3.5 h-3.5 text-[#FFA07A]" />
                       <span>{heroSlides[currentSlideIndex].location}</span>
                     </div>
 
                     {/* Top Right: Category Badge & Slide Counter */}
                     <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-2">
-                      <span className="rounded-full bg-white/95 dark:bg-[#1A1411]/95 backdrop-blur-md px-3 py-1 text-xs font-bold text-[#8A5912] dark:text-[#E09F3E] shadow-sm border border-[#B8872A]/30">
+                      <span className="rounded bg-white/95 dark:bg-[#1A1411]/95 px-3 py-1 text-xs font-bold text-[#8A5912] dark:text-[#E09F3E] border border-[#B8872A]/30">
                         {heroSlides[currentSlideIndex].badge}
                       </span>
-                      <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono font-bold text-white/90 border border-white/10 shadow-sm">
+                      <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-semibold text-white/90">
                         0{currentSlideIndex + 1}/0{heroSlides.length}
                       </span>
                     </div>
@@ -378,7 +350,7 @@ function HomeContent() {
                         type="button"
                         onClick={handlePrevSlide}
                         aria-label="Karya Sebelumnya"
-                        className="pointer-events-auto h-9 w-9 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-md active:scale-95"
+                        className="pointer-events-auto h-9 w-9 rounded-full bg-black/45 hover:bg-black/75 text-white flex items-center justify-center transition-colors active:scale-95"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
@@ -386,7 +358,7 @@ function HomeContent() {
                         type="button"
                         onClick={handleNextSlide}
                         aria-label="Karya Berikutnya"
-                        className="pointer-events-auto h-9 w-9 rounded-full bg-black/45 hover:bg-black/75 backdrop-blur-md text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shadow-md active:scale-95"
+                        className="pointer-events-auto h-9 w-9 rounded-full bg-black/45 hover:bg-black/75 text-white flex items-center justify-center transition-colors active:scale-95"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
@@ -394,7 +366,7 @@ function HomeContent() {
 
                     {/* Caption Overlay */}
                     <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white z-10 pointer-events-none">
-                      <p className="text-[11px] uppercase tracking-wider font-semibold text-[#FFA07A]">
+                      <p className="text-[11px] font-semibold text-[#FFA07A]">
                         {heroSlides[currentSlideIndex].tag}
                       </p>
                       <h3 className="font-serif text-xl sm:text-2xl font-bold mt-1 leading-snug line-clamp-1">
@@ -404,20 +376,9 @@ function HomeContent() {
                         {heroSlides[currentSlideIndex].desc}
                       </p>
                     </div>
-
-                    {/* Live Autoplay Timer Progress Bar */}
-                    <div className="absolute bottom-0 inset-x-0 h-1 bg-white/20 z-10">
-                      <motion.div
-                        key={currentSlideIndex}
-                        initial={{ width: "0%" }}
-                        animate={{ width: isPaused ? "0%" : "100%" }}
-                        transition={{ duration: 4.5, ease: "linear" }}
-                        className="h-full bg-[#C94B1A]"
-                      />
-                    </div>
                   </div>
 
-                  {/* Endless Interactive Thumbnail Strip */}
+                  {/* Thumbnail Strip */}
                   <div className="flex items-center gap-2 sm:gap-2.5 mt-3 overflow-x-auto no-scrollbar py-0.5">
                     {heroSlides.map((slide, idx) => {
                       const isActive = currentSlideIndex === idx;
@@ -426,9 +387,9 @@ function HomeContent() {
                           key={slide.id}
                           type="button"
                           onClick={() => setCurrentSlideIndex(idx)}
-                          className={`relative flex-1 min-w-[58px] sm:min-w-[70px] rounded-xl overflow-hidden aspect-[4/3] bg-[#F3EEE6] dark:bg-[#201814] border transition-all ${
+                          className={`relative flex-1 min-w-[58px] sm:min-w-[70px] rounded-lg overflow-hidden aspect-[4/3] bg-[#F3EEE6] dark:bg-[#201814] border transition-colors ${
                             isActive
-                              ? "border-[#C94B1A] ring-2 ring-[#C94B1A] scale-[1.02] shadow-sm"
+                              ? "border-[#C94B1A]"
                               : "border-[#E7DFD4] dark:border-[#2C211A] opacity-60 hover:opacity-100"
                           }`}
                         >
@@ -438,7 +399,7 @@ function HomeContent() {
                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                           />
                           <div className={`absolute inset-0 transition-colors ${isActive ? "bg-transparent" : "bg-black/30 hover:bg-black/10"}`} />
-                          <span className="absolute bottom-1 inset-x-1 text-[9px] font-bold text-white bg-black/65 px-1 py-0.5 rounded-sm truncate text-center backdrop-blur-2xs">
+                          <span className="absolute bottom-1 inset-x-1 text-[9px] font-semibold text-white bg-black/70 px-1 py-0.5 rounded-sm truncate text-center">
                             {slide.badge}
                           </span>
                         </button>
@@ -446,19 +407,7 @@ function HomeContent() {
                     })}
                   </div>
                 </div>
-
-                {/* Floating Artisan Integrity Badge */}
-                <div className="hidden sm:flex absolute -bottom-5 -left-5 z-20 items-center gap-3 rounded-2xl bg-white dark:bg-[#1A1411] p-3.5 shadow-xl border border-[#E7DFD4] dark:border-[#2C211A]">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF2E6] dark:bg-[#251B14] text-[#C94B1A] flex-shrink-0">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-[#1A110B] dark:text-[#FAF7F2]">100% Karya Artisan Asli</p>
-                    <p className="text-[11px] text-[#5C4F44] dark:text-[#C5B8AA]">Dukungan langsung ekonomi desa</p>
-                  </div>
-                </div>
               </div>
-
             </div>
           </div>
         </section>
@@ -470,7 +419,6 @@ function HomeContent() {
           <div className="mx-auto max-w-[1440px] px-4 sm:px-7 lg:px-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
               <div className="flex items-start gap-3">
-                <span className="font-serif text-xs font-bold text-[#C94B1A] pt-0.5">01.</span>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold text-[#1A110B] dark:text-[#FAF7F2]">Kriya Tangan Otentik</h4>
                   <p className="mt-0.5 text-[11px] sm:text-xs text-[#5C4F44] dark:text-[#C5B8AA] leading-relaxed">
@@ -480,7 +428,6 @@ function HomeContent() {
               </div>
 
               <div className="flex items-start gap-3">
-                <span className="font-serif text-xs font-bold text-[#8A5912] dark:text-[#E09F3E] pt-0.5">02.</span>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold text-[#1A110B] dark:text-[#FAF7F2]">Kemitraan Adil UMKM</h4>
                   <p className="mt-0.5 text-[11px] sm:text-xs text-[#5C4F44] dark:text-[#C5B8AA] leading-relaxed">
@@ -490,7 +437,6 @@ function HomeContent() {
               </div>
 
               <div className="flex items-start gap-3">
-                <span className="font-serif text-xs font-bold text-[#246E4A] dark:text-[#4ADE80] pt-0.5">03.</span>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold text-[#1A110B] dark:text-[#FAF7F2]">Kemasan Proteksi Kriya</h4>
                   <p className="mt-0.5 text-[11px] sm:text-xs text-[#5C4F44] dark:text-[#C5B8AA] leading-relaxed">
@@ -500,7 +446,6 @@ function HomeContent() {
               </div>
 
               <div className="flex items-start gap-3">
-                <span className="font-serif text-xs font-bold text-[#8C7E72] dark:text-[#9C9084] pt-0.5">04.</span>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold text-[#1A110B] dark:text-[#FAF7F2]">Jaminan Keaslian Mutu</h4>
                   <p className="mt-0.5 text-[11px] sm:text-xs text-[#5C4F44] dark:text-[#C5B8AA] leading-relaxed">
@@ -517,11 +462,8 @@ function HomeContent() {
         {/* ======================================================== */}
         <section className="py-14 sm:py-20 border-b border-[#E7DFD4] dark:border-[#261E19]">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-7 lg:px-10">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#C94B1A] block mb-1">
-                  Sentra Kriya Pilihan
-                </span>
                 <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1A110B] dark:text-[#FAF7F2]">
                   Ragam Mahakarya Daerah
                 </h2>
@@ -544,10 +486,10 @@ function HomeContent() {
                       handleCategorySelect(cat.slug);
                       document.getElementById("katalog")?.scrollIntoView({ behavior: "smooth" });
                     }}
-                    className={`group relative flex flex-col overflow-hidden rounded-xl text-left transition-all duration-300 ${
+                    className={`group relative flex flex-col overflow-hidden rounded-xl text-left transition-colors ${
                       isSelected
-                        ? "ring-2 ring-[#C94B1A] bg-white dark:bg-[#1A1411] -translate-y-1 shadow-md"
-                        : "bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] hover:border-[#C94B1A]/50 hover:shadow-md hover:-translate-y-1"
+                        ? "border-2 border-[#C94B1A] bg-white dark:bg-[#1A1411]"
+                        : "bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] hover:border-[#C94B1A]"
                     }`}
                   >
                     {/* Image with zoom */}
@@ -555,12 +497,12 @@ function HomeContent() {
                       <img
                         src={cat.image}
                         alt={cat.name}
-                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                       
                       {/* Icon Badge */}
-                      <div className="absolute top-2.5 left-2.5 flex h-7 w-7 items-center justify-center rounded bg-white/95 dark:bg-[#1A1411]/95 backdrop-blur-md shadow-xs">
+                      <div className="absolute top-2.5 left-2.5 flex h-7 w-7 items-center justify-center rounded bg-white/95 dark:bg-[#1A1411]/95">
                         <IconComp className="h-3.5 w-3.5 text-[#C94B1A]" />
                       </div>
 
@@ -600,11 +542,8 @@ function HomeContent() {
         <section id="katalog" className="py-14 sm:py-20 px-4 sm:px-7 lg:px-10">
           <div className="mx-auto max-w-[1440px] space-y-8">
             {/* Catalog Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-2">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#C94B1A] block mb-1">
-                  Koleksi Pilihan
-                </span>
                 <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1A110B] dark:text-[#FAF7F2]">
                   {onlyFavorites
                     ? "Karya Favorit Tersimpan"
@@ -619,7 +558,7 @@ function HomeContent() {
 
               {/* Search Active Indicator */}
               {search && (
-                <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#1A1411] border border-[#E7DFD4] dark:border-[#2C211A] px-3.5 py-2 text-xs text-[#5C4F44] dark:text-[#C5B8AA] shadow-2xs">
+                <div className="flex items-center gap-2 rounded-lg bg-white dark:bg-[#1A1411] border border-[#E7DFD4] dark:border-[#2C211A] px-3.5 py-2 text-xs text-[#5C4F44] dark:text-[#C5B8AA]">
                   <span>Hasil cari: &ldquo;<strong className="text-[#1A110B] dark:text-[#FAF7F2]">{search}</strong>&rdquo;</span>
                   <button
                     type="button"
@@ -672,9 +611,9 @@ function HomeContent() {
                     setOnlyFavorites(false);
                     handleCategorySelect("semua");
                   }}
-                  className={`min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all ${
+                  className={`min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     activeCategory === "semua" && !onlyFavorites
-                      ? "bg-[#C94B1A] text-white shadow-xs"
+                      ? "bg-[#C94B1A] text-white"
                       : "bg-[#F7F4EE] dark:bg-[#221A15] text-[#1A110B] dark:text-[#FAF7F2] hover:bg-[#EAE3D8] dark:hover:bg-[#2D221B] border border-[#E7DFD4] dark:border-[#332720]"
                   }`}
                 >
@@ -691,9 +630,9 @@ function HomeContent() {
                         setOnlyFavorites(false);
                         handleCategorySelect(c.slug);
                       }}
-                      className={`min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all ${
+                      className={`min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                         isActive
-                          ? "bg-[#C94B1A] text-white shadow-xs"
+                          ? "bg-[#C94B1A] text-white"
                           : "bg-[#F7F4EE] dark:bg-[#221A15] text-[#1A110B] dark:text-[#FAF7F2] hover:bg-[#EAE3D8] dark:hover:bg-[#2D221B] border border-[#E7DFD4] dark:border-[#332720]"
                       }`}
                     >
@@ -706,9 +645,9 @@ function HomeContent() {
                 <button
                   type="button"
                   onClick={() => setOnlyFavorites(!onlyFavorites)}
-                  className={`min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-bold tracking-wide transition-all flex items-center gap-2 ml-auto ${
+                  className={`min-h-9 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ml-auto ${
                     onlyFavorites
-                      ? "bg-[#8A5912] text-white shadow-xs"
+                      ? "bg-[#8A5912] text-white"
                       : "bg-[#FAF2E6] dark:bg-[#251B14] text-[#8A5912] dark:text-[#E09F3E] border border-[#B8872A]/40 dark:border-[#B8872A]/20 hover:bg-[#8A5912] hover:text-white"
                   }`}
                 >
@@ -797,7 +736,7 @@ function HomeContent() {
                 ))}
               </div>
             ) : error ? (
-              <div className="p-10 text-center bg-white dark:bg-[#181310] rounded-xl border border-[#E7DFD4] dark:border-[#2C211A] max-w-lg mx-auto shadow-sm">
+              <div className="p-10 text-center bg-white dark:bg-[#181310] rounded-xl border border-[#E7DFD4] dark:border-[#2C211A] max-w-lg mx-auto">
                 <div className="w-12 h-12 rounded-lg bg-[#FBEAEA] dark:bg-[#381A1A] text-[#A82A2A] dark:text-[#FF8080] flex items-center justify-center mx-auto mb-4">
                   <AlertCircle className="w-6 h-6" />
                 </div>
@@ -813,7 +752,7 @@ function HomeContent() {
                 </button>
               </div>
             ) : filteredAndSortedProducts.length === 0 ? (
-              <div className="p-12 text-center bg-white dark:bg-[#181310] rounded-xl border border-[#E7DFD4] dark:border-[#2C211A] max-w-lg mx-auto shadow-sm">
+              <div className="p-12 text-center bg-white dark:bg-[#181310] rounded-xl border border-[#E7DFD4] dark:border-[#2C211A] max-w-lg mx-auto">
                 <div className="w-14 h-14 rounded-xl bg-[#FAF2E6] dark:bg-[#251B14] text-[#8A5912] dark:text-[#E09F3E] flex items-center justify-center mx-auto mb-4 border border-[#B8872A]/20">
                   <Search className="w-7 h-7" />
                 </div>
@@ -846,17 +785,13 @@ function HomeContent() {
         <section className="py-16 sm:py-24">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-7 lg:px-10">
             {/* Masterpiece Framed Card */}
-            <div className="relative overflow-hidden rounded-3xl border border-[#E3DACB] dark:border-[#2E221B] bg-gradient-to-br from-[#FAF5EE] via-[#F4EDE2] to-[#ECE1D2] dark:from-[#1D1612] dark:via-[#17110D] dark:to-[#110D0A] shadow-[0_20px_50px_rgba(140,110,80,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.55)] p-6 sm:p-10 lg:p-14">
+            <div className="relative overflow-hidden rounded-2xl border border-[#E3DACB] dark:border-[#2E221B] bg-[#FAF5EE] dark:bg-[#1A1410] p-6 sm:p-10 lg:p-14">
               
-              {/* Subtle Decorative Ambient Glow */}
-              <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-[#C94B1A]/8 dark:bg-[#C94B1A]/10 blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 rounded-full bg-[#B8872A]/8 dark:bg-[#B8872A]/10 blur-3xl pointer-events-none" />
-
               <div className="relative grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
                 
                 {/* Visual Showcase (Left) */}
                 <div className="relative">
-                  <div className="relative rounded-2xl overflow-hidden shadow-xl border border-[#DCD3C6] dark:border-[#38281F] aspect-[4/3] sm:aspect-[16/11]">
+                  <div className="relative rounded-xl overflow-hidden border border-[#DCD3C6] dark:border-[#38281F] aspect-[4/3] sm:aspect-[16/11]">
                     <img
                       src="/uploads/produk/tenun_sumba.jpg"
                       alt="Dedikasi Pengrajin Wastra &amp; Kriya Tradisional Nusantara"
@@ -865,26 +800,26 @@ function HomeContent() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
                     
                     {/* Top Provenance Badge */}
-                    <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded-full bg-black/60 dark:bg-black/75 backdrop-blur-md px-3.5 py-1.5 text-xs font-bold text-white border border-white/15 shadow-sm">
+                    <div className="absolute top-4 left-4 z-10 flex items-center gap-2 rounded bg-black/70 px-3 py-1.5 text-xs font-semibold text-white">
                       <MapPin className="w-3.5 h-3.5 text-[#FFA07A]" />
                       <span>Sentra Tenun &amp; Kriya Nusantara</span>
                     </div>
 
                     {/* Bottom Caption Pill */}
-                    <div className="absolute bottom-4 left-4 right-4 z-10 rounded-2xl bg-white/90 dark:bg-[#181310]/90 backdrop-blur-md p-4 border border-white/40 dark:border-white/10 shadow-lg flex items-center justify-between gap-3">
+                    <div className="absolute bottom-4 left-4 right-4 z-10 rounded-lg bg-white dark:bg-[#181310] p-4 border border-white/40 dark:border-white/10 flex items-center justify-between gap-3">
                       <div>
                         <p className="text-xs font-bold text-[#1A110B] dark:text-[#FAF7F2]">Warisan Luhur Karya Tangan Otentik</p>
                         <p className="text-[11px] text-[#706253] dark:text-[#A89887] mt-0.5">Ditenun, diukir, dan dibentuk manual dengan ketelatenan rasa lintas generasi</p>
                       </div>
-                      <span className="hidden sm:inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#FAF0E6] dark:bg-[#2A1B14] text-[#C94B1A] dark:text-[#E06334] border border-[#C94B1A]/20 flex-shrink-0">
-                        100% Tangan Pengrajin
+                      <span className="hidden sm:inline-block px-3 py-1 rounded text-[10px] font-semibold bg-[#FAF0E6] dark:bg-[#2A1B14] text-[#C94B1A] dark:text-[#E06334] border border-[#C94B1A]/20 flex-shrink-0">
+                        Kriya tangan
                       </span>
                     </div>
                   </div>
 
                   {/* Floating Artisan Quote Accent Badge */}
-                  <div className="hidden sm:flex absolute -bottom-4 -right-4 z-20 max-w-xs rounded-2xl bg-white dark:bg-[#201814] p-3.5 border border-[#E2D8CA] dark:border-[#38281F] shadow-xl items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#FAF0E6] dark:bg-[#2E1E16] text-[#C94B1A] flex items-center justify-center flex-shrink-0 font-serif font-bold text-base shadow-2xs">
+                  <div className="hidden sm:flex absolute -bottom-4 -right-4 z-20 max-w-xs rounded-lg bg-white dark:bg-[#201814] p-3.5 border border-[#E2D8CA] dark:border-[#38281F] items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#FAF0E6] dark:bg-[#2E1E16] text-[#C94B1A] flex items-center justify-center flex-shrink-0 font-serif font-bold text-base">
                       &ldquo;
                     </div>
                     <p className="text-xs text-[#4A3D31] dark:text-[#C5B8AA] leading-snug italic font-serif">
@@ -895,15 +830,10 @@ function HomeContent() {
 
                 {/* Narrative & Values (Right) */}
                 <div className="space-y-6 lg:pl-4">
-                  {/* Eyebrow */}
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FAF0E6] dark:bg-[#2A1B14] border border-[#E7D5C4] dark:border-[#3D251A] text-xs font-bold uppercase tracking-widest text-[#C94B1A] dark:text-[#E06334]">
-                    <span>Kisah Para Penjaga Budaya</span>
-                  </div>
-
                   {/* Title */}
                   <div className="space-y-3">
                     <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#1A110B] dark:text-[#FAF7F2] leading-[1.12]">
-                      Dari Tangan Terampil Desa ke <span className="text-[#C94B1A] italic">Ruang Hunian</span> Modern
+                      Kriya desa untuk ruang Anda
                     </h2>
                     <p className="text-sm sm:text-base leading-relaxed text-[#5C4F44] dark:text-[#C5B8AA]">
                       Setiap guratan canting pada sehelai batik, putaran roda pembuat gerabah, dan jalinan helai serat rotan menyimpan dedikasi bergenerasi. Di PasarNusa, Anda membeli karya berjiwa yang menghidupkan dapur keluarga pengrajin di pelosok nusantara secara adil dan bermartabat.
@@ -912,7 +842,7 @@ function HomeContent() {
 
                   {/* Feature Value Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                    <div className="rounded-2xl bg-white/75 dark:bg-[#201712]/75 border border-[#E3DACB] dark:border-[#33251D] p-4 shadow-2xs">
+                    <div className="rounded-lg bg-white dark:bg-[#201712] border border-[#E3DACB] dark:border-[#33251D] p-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-full bg-[#FAF0E6] dark:bg-[#2A1B14] text-[#C94B1A] flex items-center justify-center flex-shrink-0">
                           <Leaf className="w-3.5 h-3.5" />
@@ -924,12 +854,12 @@ function HomeContent() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl bg-white/75 dark:bg-[#201712]/75 border border-[#E3DACB] dark:border-[#33251D] p-4 shadow-2xs">
+                    <div className="rounded-lg bg-white dark:bg-[#201712] border border-[#E3DACB] dark:border-[#33251D] p-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-full bg-[#FAF2E6] dark:bg-[#251B14] text-[#8A5912] dark:text-[#E09F3E] flex items-center justify-center flex-shrink-0">
                           <HeartHandshake className="w-3.5 h-3.5" />
                         </div>
-                        <h3 className="font-bold text-xs sm:text-sm text-[#1A110B] dark:text-[#FAF7F2]">100% Hak Pengrajin</h3>
+                        <h3 className="font-bold text-xs sm:text-sm text-[#1A110B] dark:text-[#FAF7F2]">Harga Adil untuk Pengrajin</h3>
                       </div>
                       <p className="text-xs text-[#706253] dark:text-[#A89887] mt-2 leading-relaxed">
                         Harga adil transparan tanpa potongan sepihak perantara, mengalir langsung ke pengrajin desa.
@@ -941,10 +871,9 @@ function HomeContent() {
                   <div className="pt-2">
                     <Link
                       href="/tentang-kami"
-                      className="inline-flex h-12 items-center gap-2.5 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white px-7 font-bold text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
+                      className="inline-flex h-12 items-center rounded-lg bg-[#C94B1A] hover:bg-[#B33F14] text-white px-7 font-bold text-sm transition-colors active:scale-[0.98]"
                     >
                       <span>Baca Kisah Pengrajin Kami</span>
-                      <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>

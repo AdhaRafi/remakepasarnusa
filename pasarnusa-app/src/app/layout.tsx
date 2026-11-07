@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/context/ThemeContext";
-import { CartProvider } from "@/context/CartContext";
-import { AuthProvider } from "@/context/AuthContext";
-import { WishlistProvider } from "@/context/WishlistContext";
-import { ToastProvider } from "@/components/Toast";
-import CartDrawer from "@/components/CartDrawer";
-import BottomNav from "@/components/BottomNav";
+import { ThemeProvider } from "@/frontend/context/ThemeContext";
+import { CartProvider } from "@/frontend/context/CartContext";
+import { AuthProvider } from "@/frontend/context/AuthContext";
+import { WishlistProvider } from "@/frontend/context/WishlistContext";
+import { ToastProvider } from "@/frontend/components/Toast";
+import CartDrawer from "@/frontend/components/CartDrawer";
+import BottomNav from "@/frontend/components/BottomNav";
+import ChatWidget from "@/frontend/components/ChatWidget";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -49,6 +50,7 @@ export default function RootLayout({
                   {children}
                   <CartDrawer />
                   <BottomNav />
+                  <ChatWidget />
                 </ToastProvider>
               </WishlistProvider>
             </CartProvider>

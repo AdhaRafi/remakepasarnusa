@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { useAuth } from "@/context/AuthContext";
-import { Order } from "@/lib/db";
+import Navbar from "@/frontend/components/Navbar";
+import Footer from "@/frontend/components/Footer";
+import { useAuth } from "@/frontend/context/AuthContext";
+import { Order } from "@/shared/db";
+import { resolveProfileImage } from "@/shared/media";
 import {
   User,
   Package,
@@ -127,8 +128,9 @@ export default function ProfilPage() {
         body: formData,
       });
       const data = await res.json();
-      if (res.ok && data.fileName) {
-        setPhoto(data.fileName);
+      if (res.ok && (data.url || data.fileName)) {
+        const uploadedPhoto = data.url || data.fileName;
+        setPhoto(uploadedPhoto);
         // Otomatis simpan ke profil dan sinkronkan dengan sesi pengguna
         await fetch("/api/profile", {
           method: "PUT",
@@ -140,7 +142,7 @@ export default function ProfilPage() {
             kota: city,
             provinsi: province,
             kode_pos: postalCode,
-            foto: data.fileName,
+            foto: uploadedPhoto,
           }),
         });
         await refreshUser();
@@ -227,7 +229,7 @@ export default function ProfilPage() {
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-full bg-[#FAF5EB] border-2 border-[#C94B1A] overflow-hidden flex items-center justify-center flex-shrink-0 text-2xl font-bold text-[#C94B1A]">
                 {photo ? (
-                  <img src={`/uploads/profil/${photo}`} alt={nama} className="w-full h-full object-cover" />
+                  <img src={resolveProfileImage(photo)} alt={nama} className="w-full h-full object-cover" />
                 ) : (
                   nama.charAt(0).toUpperCase() || "U"
                 )}
@@ -235,7 +237,7 @@ export default function ProfilPage() {
               <div>
                 <h1 className="font-serif text-2xl font-bold text-[#1A1008]">{nama || "Pengguna PasarNusa"}</h1>
                 <p className="text-xs text-[#6E6254] mt-0.5">{email}</p>
-                <span className="inline-block mt-2 text-[11px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full bg-[#FAF5EB] text-[#8A5912] border border-[#8A5912]/30">
+                <span className="inline-block mt-2 text-[11px] font-bold px-3 py-0.5 rounded-full bg-[#FAF5EB] text-[#8A5912] border border-[#8A5912]/30">
                   Peran: {user?.role || "Pembeli"}
                 </span>
               </div>
@@ -246,9 +248,9 @@ export default function ProfilPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("pesanan")}
-                className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 ${
+                className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
                   activeTab === "pesanan"
-                    ? "bg-[#C94B1A] text-white shadow-sm"
+                    ? "bg-[#C94B1A] text-white"
                     : "text-[#6E6254] hover:text-[#1A1008]"
                 }`}
               >
@@ -258,9 +260,9 @@ export default function ProfilPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab("profil")}
-                className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 ${
+                className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
                   activeTab === "profil"
-                    ? "bg-[#C94B1A] text-white shadow-sm"
+                    ? "bg-[#C94B1A] text-white"
                     : "text-[#6E6254] hover:text-[#1A1008]"
                 }`}
               >
@@ -306,7 +308,7 @@ export default function ProfilPage() {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#DFD7CA]/60 pb-3">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono font-bold text-[#1A1008]">#{ord.order_number}</span>
+                          <span className="tabular-nums font-bold text-[#1A1008]">#{ord.order_number}</span>
                           <span className="text-[#6E6254]">
                             {new Date(ord.created_at).toLocaleDateString("id-ID", {
                               day: "numeric",
@@ -342,7 +344,7 @@ export default function ProfilPage() {
 
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <span className="text-[10px] text-[#6E6254] block uppercase">Total Pesanan</span>
+                            <span className="text-[10px] text-[#6E6254] block">Total Pesanan</span>
                             <span className="text-base font-extrabold text-[#C94B1A]">
                               Rp {ord.total_bayar.toLocaleString("id-ID")}
                             </span>
@@ -392,13 +394,13 @@ export default function ProfilPage() {
                 <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#F7F3EC] border border-[#DFD7CA]">
                   <div className="w-14 h-14 rounded-full bg-[#FAF5EB] border border-[#B8872A] overflow-hidden flex items-center justify-center flex-shrink-0 text-xl font-bold text-[#B8872A]">
                     {photo ? (
-                      <img src={`/uploads/profil/${photo}`} alt="Foto Profil" className="w-full h-full object-cover" />
+                      <img src={resolveProfileImage(photo)} alt="Foto Profil" className="w-full h-full object-cover" />
                     ) : (
                       nama.charAt(0).toUpperCase() || "U"
                     )}
                   </div>
                   <div>
-                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#DFD7CA] rounded-xl text-xs font-bold text-[#1A1008] hover:border-[#C94B1A] cursor-pointer transition shadow-sm">
+                    <label className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#DFD7CA] rounded-xl text-xs font-bold text-[#1A1008] hover:border-[#C94B1A] cursor-pointer transition">
                       <Upload className="w-3.5 h-3.5" />
                       Ganti Foto Profil
                       <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
@@ -409,7 +411,7 @@ export default function ProfilPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Nama Lengkap *
                     </label>
                     <input
@@ -422,7 +424,7 @@ export default function ProfilPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Alamat Email (Tetap)
                     </label>
                     <input
@@ -434,7 +436,7 @@ export default function ProfilPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Nomor HP / WhatsApp
                     </label>
                     <input
@@ -447,7 +449,7 @@ export default function ProfilPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Kota / Kabupaten
                     </label>
                     <input
@@ -460,7 +462,7 @@ export default function ProfilPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Provinsi
                     </label>
                     <input
@@ -473,7 +475,7 @@ export default function ProfilPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Kode Pos
                     </label>
                     <input
@@ -486,7 +488,7 @@ export default function ProfilPage() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-[#6E6254] mb-1.5">
+                    <label className="block text-xs font-bold text-[#6E6254] mb-1.5">
                       Alamat Pengiriman Default
                     </label>
                     <textarea
@@ -503,7 +505,7 @@ export default function ProfilPage() {
                   <button
                     type="submit"
                     disabled={savingProfile}
-                    className="min-h-[44px] px-6 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] disabled:opacity-50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition flex items-center gap-2 shadow-sm"
+                    className="min-h-[44px] px-6 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
                     {savingProfile ? "Menyimpan..." : "Simpan Perubahan"}

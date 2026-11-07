@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -15,10 +15,11 @@ import {
   Heart,
   ChevronDown,
 } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
-import ThemeToggle from "@/components/ThemeToggle";
+import { useAuth } from "@/frontend/context/AuthContext";
+import { useCart } from "@/frontend/context/CartContext";
+import { useWishlist } from "@/frontend/context/WishlistContext";
+import ThemeToggle from "@/frontend/components/ThemeToggle";
+import { resolveProfileImage } from "@/shared/media";
 
 interface NavbarProps {
   initialSearch?: string;
@@ -35,11 +36,29 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
   const [keyword, setKeyword] = useState(initialSearch);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!profileDropdownOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setProfileDropdownOpen(false);
+    };
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
 
   const getAvatarUrl = (foto?: string | null) => {
     if (!foto) return null;
-    if (foto.startsWith("http") || foto.startsWith("/")) return foto;
-    return `/uploads/profil/${foto}`;
+    return resolveProfileImage(foto);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -51,9 +70,8 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
   };
 
   return (
-    <header className="sticky top-2 sm:top-4 z-50 px-3 sm:px-6 max-w-7xl mx-auto w-full transition-all">
-      {/* Floating Island Capsule Navbar */}
-      <div className="bg-white/95 dark:bg-[#16120E]/95 backdrop-blur-md rounded-full border border-[#E7DFD4] dark:border-[#2C211A] shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] px-3.5 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2.5 sm:gap-6">
+    <header className="sticky top-0 z-50 w-full border-b border-[#E4DBCE] bg-[#F7F3EC] dark:border-[#2A211B] dark:bg-[#120F0D]">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-7 lg:px-10">
         
         {/* ========================================= */}
         {/* 1. BRAND LOGO                             */}
@@ -75,15 +93,15 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
         <nav className="hidden lg:flex items-center gap-6">
           <Link
             href="/#katalog"
-            className={`text-xs uppercase tracking-wider font-semibold transition-colors ${
-              pathname === "/" ? "text-[#C94B1A]" : "text-[#5C4F44] dark:text-[#C5B8AA] hover:text-[#C94B1A]"
+            className={`text-sm font-semibold transition-colors ${
+              pathname === "/" ? "text-[#C94B1A] dark:text-[#E06334]" : "text-[#5C4F44] dark:text-[#C5B8AA] hover:text-[#C94B1A]"
             }`}
           >
             Katalog Kriya
           </Link>
           <Link
             href="/tentang-kami"
-            className="text-xs uppercase tracking-wider font-semibold text-[#5C4F44] dark:text-[#C5B8AA] hover:text-[#C94B1A] transition-colors"
+            className="text-sm font-semibold text-[#5C4F44] dark:text-[#C5B8AA] hover:text-[#C94B1A] transition-colors"
           >
             Kisah Artisan
           </Link>
@@ -181,13 +199,13 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
 
           {/* User Auth Section (Pill style matching reference) */}
           {user ? (
-            <div className="relative">
+            <div className="relative" ref={profileMenuRef}>
               <button
                 type="button"
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 aria-expanded={profileDropdownOpen}
                 aria-haspopup="menu"
-                className="flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 pl-1 pr-2 sm:pr-3 rounded-full bg-[#FAF7F2] dark:bg-[#201A16] hover:bg-[#F0EBE1] dark:hover:bg-[#2C231E] border border-[#E7DFD4] dark:border-[#2E241E] transition-all shadow-xs"
+                className="flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 pl-1 pr-2 sm:pr-3 rounded-full bg-[#FAF7F2] dark:bg-[#201A16] hover:bg-[#F0EBE1] dark:hover:bg-[#2C231E] border border-[#E7DFD4] dark:border-[#2E241E] transition-all"
               >
                 <div className="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-[#C94B1A] text-white font-bold flex items-center justify-center text-xs overflow-hidden select-none flex-shrink-0">
                   {getAvatarUrl(user.foto) ? (
@@ -206,11 +224,10 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
               {profileDropdownOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 mt-2 w-60 max-w-[calc(100vw-32px)] rounded-2xl border border-[#E7DFD4] dark:border-[#2E241E] bg-white dark:bg-[#181310] py-2 text-sm shadow-xl z-50 animate-in fade-in slide-in-from-top-1 duration-150"
-                  onMouseLeave={() => setProfileDropdownOpen(false)}
+                  className="absolute right-0 mt-2 w-60 max-w-[calc(100vw-32px)] rounded-2xl border border-[#E7DFD4] dark:border-[#2E241E] bg-white dark:bg-[#181310] py-2 text-sm z-50"
                 >
                   <div className="px-4 py-2.5 border-b border-[#EAE3D8] dark:border-[#261E19] flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#C94B1A] text-white font-bold flex items-center justify-center text-sm overflow-hidden flex-shrink-0 shadow-xs">
+                    <div className="w-9 h-9 rounded-full bg-[#C94B1A] text-white font-bold flex items-center justify-center text-sm overflow-hidden flex-shrink-0">
                       {getAvatarUrl(user.foto) ? (
                         <img src={getAvatarUrl(user.foto)!} alt={user.nama} className="w-full h-full object-cover" />
                       ) : (
@@ -219,7 +236,7 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold text-xs text-[#1A110B] dark:text-[#FAF7F2] truncate">{user.nama}</p>
-                      <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#FAF2E6] dark:bg-[#251B14] text-[#8A5912] dark:text-[#E09F3E]">
+                      <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#FAF2E6] dark:bg-[#251B14] text-[#8A5912] dark:text-[#E09F3E]">
                         {user.role}
                       </span>
                     </div>
@@ -282,7 +299,7 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
               </Link>
               <Link
                 href="/daftar"
-                className="h-8 sm:h-9 px-4 rounded-full flex items-center bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold shadow-xs transition-colors"
+                className="h-8 sm:h-9 px-4 rounded-full flex items-center bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold transition-colors"
               >
                 Daftar
               </Link>
@@ -305,7 +322,7 @@ export default function Navbar({ initialSearch = "", activeCategory = "semua" }:
 
       {/* Mobile Menu Floating Dropdown Card */}
       {mobileMenuOpen && (
-        <div className="md:hidden mt-2 rounded-2xl bg-white/95 dark:bg-[#16120E]/95 backdrop-blur-md border border-[#E7DFD4] dark:border-[#2C211A] shadow-xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden mx-4 mb-4 rounded-2xl bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] p-4">
           {/* Mobile Search Bar */}
           <form onSubmit={handleSearchSubmit} role="search" className="relative mb-3">
             <div className="relative w-full h-9 flex items-center bg-[#FAF7F2] dark:bg-[#201A16] rounded-full border border-[#E7DFD4] dark:border-[#2E241E] focus-within:border-[#C94B1A]">

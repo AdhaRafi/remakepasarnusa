@@ -1,6 +1,10 @@
-import { supabaseAdmin, getNextId } from "@/lib/supabase";
-import { Order, OrderStatus, SessionUser, Product } from "@/types";
-import { createMidtransTransaction, MIDTRANS_CLIENT_KEY, MIDTRANS_SERVER_KEY } from "@/lib/midtrans";
+import { supabaseAdmin } from "@/backend/lib/supabase";
+import { Order, OrderStatus, SessionUser, Product } from "@/shared/types";
+import { createMidtransTransaction, MIDTRANS_CLIENT_KEY, MIDTRANS_SERVER_KEY } from "@/shared/midtrans";
+import { getShippingCost } from "@/shared/shipping";
+
+const PAYMENT_METHODS = ["midtrans", "cod", "transfer"] as const;
+type PaymentMethodValue = (typeof PAYMENT_METHODS)[number];
 
 export interface CheckoutPayloadItem {
   id: number;
@@ -139,6 +143,11 @@ export const orderService = {
         .eq("id", orderId);
 
       if (error) throw error;
+
+      if (status === "dibatalkan" && existing.status !== "dibatalkan") {
+        await this.restoreStock(orderId);
+      }
+
       return { message: "Pesanan berhasil diperbarui oleh Admin." };
     }
 
@@ -195,6 +204,34 @@ export const orderService = {
     throw new Error("Operasi tidak diizinkan.");
   },
 
+  async restoreStock(orderId: number): Promise<void> {
+    const { data: items, error } = await supabaseAdmin
+      .from("order_items")
+      .select("id_produk, qty")
+      .eq("order_id", orderId);
+
+    if (error || !items) return;
+
+    for (const item of items as Array<{ id_produk: number | null; qty: number }>) {
+      if (!item.id_produk) continue;
+      const { data: product } = await supabaseAdmin
+        .from("produk")
+        .select("stok")
+        .eq("id", item.id_produk)
+        .maybeSingle();
+
+      if (!product) continue;
+
+      await supabaseAdmin
+        .from("produk")
+        .update({
+          stok: product.stok + item.qty,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", item.id_produk);
+    }
+  },
+
   async processCheckout(session: SessionUser | null, payload: CheckoutPayload) {
     const {
       items,
@@ -208,6 +245,12 @@ export const orderService = {
       kurir,
     } = payload;
 
+    const metode = (payload.metode_pembayaran || "midtrans") as PaymentMethodValue;
+
+    if (!PAYMENT_METHODS.includes(metode)) {
+      throw new Error("Metode pembayaran tidak valid.");
+    }
+
     if (!items || !Array.isArray(items) || items.length === 0) {
       throw new Error("Keranjang belanja kosong.");
     }
@@ -219,8 +262,8 @@ export const orderService = {
       throw new Error("Daftar produk atau jumlah pesanan tidak valid.");
     }
 
-    if (!MIDTRANS_SERVER_KEY || !MIDTRANS_CLIENT_KEY) {
-      throw new Error("Pembayaran online belum dikonfigurasi. Silakan hubungi admin.");
+    if (metode === "midtrans" && (!MIDTRANS_SERVER_KEY || !MIDTRANS_CLIENT_KEY)) {
+      throw new Error("Pembayaran online belum dikonfigurasi. Pilih COD atau transfer bank.");
     }
 
     if (!nama_penerima || !no_hp || !alamat || !kota || !provinsi || !kode_pos) {
@@ -264,7 +307,9 @@ export const orderService = {
       throw err;
     }
 
-    const totalAmount = calculatedSubtotal;
+    // Shipping cost is decided by the server, so the client cannot tamper with it
+    const shippingCost = getShippingCost(kurir);
+    const totalAmount = calculatedSubtotal + shippingCost;
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10).replace(/-/g, "");
     const randSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -277,45 +322,37 @@ export const orderService = {
     const safeProvinsi = provinsi.replace(/<[^>]*>/g, "").trim();
     const safeKodePos = kode_pos.replace(/[^0-9]/g, "").trim();
     const safeCatatan = catatan ? catatan.replace(/<[^>]*>/g, "").trim() : null;
-    const safeKurir = kurir ? kurir.replace(/<[^>]*>/g, "").trim() : "Belum ditentukan";
+    const safeKurir = kurir ? kurir.replace(/<[^>]*>/g, "").trim() : "JNE Reguler";
 
-    const snapResult = await createMidtransTransaction({
-      orderId: orderNumber,
-      grossAmount: totalAmount,
-      customerDetails: {
-        firstName: safeNama,
-        phone: safeHp,
-        address: safeAlamat,
-        city: safeKota,
-        postalCode: safeKodePos,
-      },
-      itemDetails: validatedItems.map((vi) => ({
-        id: String(vi.product.id),
-        name: vi.product.nama_produk,
-        price: vi.product.harga,
-        quantity: vi.qty,
-      })),
-    });
+    let snapToken: string | null = null;
+    let redirectUrl: string | null = null;
 
-    const snapToken = snapResult.token;
-    const redirectUrl = snapResult.redirectUrl;
-
-    // Deduct stock
-    for (const item of validatedItems) {
-      const newStock = Math.max(0, item.product.stok - item.qty);
-      await supabaseAdmin
-        .from("produk")
-        .update({ stok: newStock, updated_at: new Date().toISOString() })
-        .eq("id", item.product.id);
+    if (metode === "midtrans") {
+      const snapResult = await createMidtransTransaction({
+        orderId: orderNumber,
+        grossAmount: totalAmount,
+        customerDetails: {
+          firstName: safeNama,
+          phone: safeHp,
+          address: safeAlamat,
+          city: safeKota,
+          postalCode: safeKodePos,
+        },
+        itemDetails: validatedItems.map((vi) => ({
+          id: String(vi.product.id),
+          name: vi.product.nama_produk,
+          price: vi.product.harga,
+          quantity: vi.qty,
+        })),
+      });
+      snapToken = snapResult.token;
+      redirectUrl = snapResult.redirectUrl;
     }
 
-    const nextOrderId = await getNextId("orders");
-
-    // Insert order
+    // Create the order first, let the database generate the id
     const { data: orderData, error: orderErr } = await supabaseAdmin
       .from("orders")
       .insert({
-        id: nextOrderId,
         order_number: orderNumber,
         id_pembeli: session ? session.id : null,
         nama_penerima: safeNama,
@@ -326,9 +363,9 @@ export const orderService = {
         kode_pos: safeKodePos,
         catatan: safeCatatan,
         kurir: safeKurir,
-        metode_pembayaran: "midtrans",
+        metode_pembayaran: metode,
         subtotal: calculatedSubtotal,
-        ongkir: 0,
+        ongkir: shippingCost,
         diskon: 0,
         total_bayar: totalAmount,
         status: "pending",
@@ -342,11 +379,9 @@ export const orderService = {
     }
 
     const orderId = orderData.id;
-    const startItemId = await getNextId("order_items");
 
     // Insert order items
-    const itemsToInsert = validatedItems.map((item, idx) => ({
-      id: startItemId + idx,
+    const itemsToInsert = validatedItems.map((item) => ({
       order_id: orderId,
       id_produk: item.product.id,
       nama_produk: item.product.nama_produk,
@@ -359,16 +394,40 @@ export const orderService = {
       .from("order_items")
       .insert(itemsToInsert);
 
-    if (itemsErr) console.error("Error inserting order items:", itemsErr);
+    if (itemsErr) {
+      await supabaseAdmin.from("orders").delete().eq("id", orderId);
+      throw new Error("Gagal menyimpan rincian pesanan. Silakan coba lagi.");
+    }
+
+    // Deduct stock only after the order is safely stored
+    for (const item of validatedItems) {
+      const { error: stockErr } = await supabaseAdmin
+        .from("produk")
+        .update({
+          stok: item.product.stok - item.qty,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", item.product.id)
+        .gte("stok", item.qty);
+
+      if (stockErr) {
+        console.error(`Gagal mengurangi stok produk #${item.product.id}:`, stockErr);
+      }
+    }
 
     return {
       orderId,
       orderNumber,
+      subtotal: calculatedSubtotal,
+      ongkir: shippingCost,
       totalAmount,
-      paymentMethod: "midtrans",
+      paymentMethod: metode,
       snapToken,
       redirectUrl,
-      message: "Pesanan berhasil dibuat.",
+      message:
+        metode === "midtrans"
+          ? "Pesanan berhasil dibuat. Lanjutkan pembayaran."
+          : "Pesanan berhasil dibuat.",
     };
   },
 };

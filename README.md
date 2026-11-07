@@ -9,9 +9,9 @@ Selamat datang di versi remake modern dari **PasarNusa**. Proyek ini telah diban
 - **Frontend & Server Framework**: [Next.js 15 (App Router, Turbopack)](https://nextjs.org/) dengan **TypeScript**.
 - **Styling & Design System**: [Tailwind CSS v4](https://tailwindcss.com/) dengan palet kriya nusantara (Terakota, Warm Cream, Antique Gold, Deep Espresso).
 - **Tipografi**: `Playfair Display` (editorial serif untuk judul & aksen craftsmanship) dipadukan dengan `Plus Jakarta Sans` (digital UI readability).
-- **Database Engine**: [SQLite (via better-sqlite3)](https://github.com/WiseLibs/better-sqlite3) yang tertanam secara lokal dengan mode WAL (Write-Ahead Logging), integritas foreign keys, dan zero-friction deployment.
-- **Autentikasi & Keamanan**: Password hashing dengan **bcrypt** dan session token terenkripsi menggunakan **JWT** yang disimpan dalam HTTP-only Cookie.
-- **Payment Gateway**: Integrasi **Midtrans Snap Sandbox** (QRIS, GoPay, ShopeePay, Virtual Account Bank) dengan opsi fallback COD (Bayar di Tempat) dan Transfer Bank.
+- **Database Engine**: [Supabase (PostgreSQL)](https://supabase.com/) sebagai basis data utama. Akses data dilakukan di sisi server lewat service role, dengan dukungan skema SQL, seed data, index, dan Row Level Security.
+- **Autentikasi & Keamanan**: Password hashing dengan **bcrypt** dan session token terenkripsi menggunakan **JWT** yang disimpan dalam HTTP-only Cookie. Login dan registrasi dilindungi rate limit.
+- **Payment Gateway**: Integrasi **Midtrans Snap Sandbox** (QRIS, GoPay, ShopeePay, Virtual Account Bank), ditambah opsi **COD (Bayar di Tempat)** dan **Transfer Bank**. Status pembayaran Midtrans disinkronkan lewat webhook bertanda tangan.
 
 ---
 
@@ -20,27 +20,35 @@ Selamat datang di versi remake modern dari **PasarNusa**. Proyek ini telah diban
 ```text
 d:\pasarnusa\
 ├── pasarnusa-app/                # Aplikasi Utama Next.js 15
-│   ├── data/                     # Database lokal SQLite (pasarnusa.db)
+│   ├── data/                     # Database SQLite lokal (legacy, hanya untuk skrip ekspor)
+│   ├── scripts/                  # Utilitas ekspor SQL dan pemeliharaan data
 │   ├── public/
 │   │   ├── uploads/produk/       # Aset foto asli produk kriya & wastra
 │   │   ├── uploads/profil/       # Aset foto avatar pengguna
 │   │   ├── pasar.jpg             # Hero visual pasar tradisional
 │   │   └── Pasar_1.jpg           # Aset visual tentang kami
 │   ├── src/
-│   │   ├── app/
-│   │   │   ├── admin/            # Panel Pengendali Administrator
-│   │   │   ├── penjual/          # Studio Pengelolaan Toko Mitra Pengrajin
-│   │   │   ├── keranjang/        # Checkout flow bertahap & Midtrans Snap
-│   │   │   ├── profil/           # Profil akun & riwayat transaksi pesanan
-│   │   │   ├── masuk/            # Autentikasi Masuk dengan Quick Demo Switcher
-│   │   │   ├── daftar/           # Registrasi Pembeli & Penjual
-│   │   │   ├── tentang-kami/     # Kisah dan manifesto nilai PasarNusa
-│   │   │   ├── api/              # Route Handlers API (auth, products, orders, checkout, upload, admin)
+│   │   ├── app/                  # Routing Next.js
+│   │   │   ├── api/              # BACKEND: Route Handlers (auth, products, orders, checkout, upload, admin)
+│   │   │   ├── admin/            # FRONTEND: Panel Administrator
+│   │   │   ├── penjual/          # FRONTEND: Studio Pengelolaan Toko
+│   │   │   ├── keranjang/        # FRONTEND: Checkout flow & Midtrans Snap
+│   │   │   ├── profil/           # FRONTEND: Profil akun & riwayat pesanan
+│   │   │   ├── masuk/            # FRONTEND: Halaman masuk
+│   │   │   ├── daftar/           # FRONTEND: Registrasi Pembeli & Penjual
+│   │   │   ├── tentang-kami/     # FRONTEND: Kisah dan nilai PasarNusa
 │   │   │   ├── layout.tsx        # Root Layout & Provider Contexts
 │   │   │   └── page.tsx          # Beranda Marketplace Terkurasi
-│   │   ├── components/           # Navbar, Footer, ProductCard, ProductDetailModal
-│   │   ├── context/              # AuthContext & CartContext (real-time stock guard)
-│   │   └── lib/                  # db.ts (SQLite schema & seeders), auth.ts, midtrans.ts
+│   │   ├── backend/              # BACKEND: kode khusus server
+│   │   │   ├── lib/              # auth, supabase, rate-limit, api-response
+│   │   │   └── services/         # Akses data (auth, product, order, user, storage)
+│   │   ├── frontend/             # FRONTEND: kode khusus browser
+│   │   │   ├── components/       # Navbar, Footer, ProductCard, ProductDetailModal
+│   │   │   └── context/          # Auth, Cart, Theme, Wishlist provider
+│   │   └── shared/               # Dipakai bersama backend & frontend
+│   │       ├── types/            # Tipe data bersama
+│   │       ├── db.ts             # Re-export tipe + shim database legacy
+│   │       └── midtrans.ts       # Konstanta & helper Midtrans
 ├── legacy/                       # Arsip file proyek PHP legacy lama
 ├── DESIGN.md                     # Panduan arah identitas visual & antislop dials
 └── GEMINI.md                     # Pedoman proyek & pointer antislop

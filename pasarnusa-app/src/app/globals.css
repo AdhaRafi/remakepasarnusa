@@ -3,7 +3,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-serif: var(--font-decoy, var(--font-fraunces)), "Decoy", Georgia, Cambria, serif;
+  --font-serif: var(--font-fraunces), Georgia, Cambria, serif;
   --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
 
   --color-canvas: #F7F3EC;
@@ -75,104 +75,97 @@ textarea:focus-visible {
 }
 
 .shadow-artisan {
-  box-shadow: 0 2px 8px -4px rgb(60 30 10 / 10%);
+  box-shadow: none;
 }
 
 .shadow-artisan-lg {
-  box-shadow: 0 8px 20px -10px rgb(60 30 10 / 18%);
+  box-shadow: 0 1px 2px rgb(26 17 11 / 6%);
 }
 
-/* 3D Claymorphism & Glassy Dashboard V20 Styles (PasarNusa Warm Artisan Palette) */
+/* Flat artisan surfaces: warm, quiet, no glass or clay shadows */
 .clay-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  box-shadow:
-    inset 2px 2px 5px rgba(255, 255, 255, 0.95),
-    inset -2px -2px 5px rgba(201, 75, 26, 0.04),
-    0 14px 28px -6px rgba(138, 89, 18, 0.08),
-    0 4px 12px rgba(26, 17, 11, 0.03);
-  border-radius: 1.75rem;
+  background: #FFFFFF;
+  border: 1px solid #E4DBCE;
+  border-radius: 0.75rem;
+  box-shadow: none;
 }
 
 .clay-card-flat {
   background: #FFFFFF;
-  border: 1px solid #EAE4DC;
-  box-shadow:
-    inset 1px 1px 3px rgba(255, 255, 255, 0.95),
-    0 8px 20px -6px rgba(60, 40, 20, 0.06);
-  border-radius: 1.5rem;
+  border: 1px solid #E4DBCE;
+  border-radius: 0.75rem;
+  box-shadow: none;
 }
 
 .clay-card-hover {
-  transition: all 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: border-color 180ms ease, background-color 180ms ease;
 }
 
 .clay-card-hover:hover {
-  transform: translateY(-5px);
-  box-shadow:
-    inset 2px 2px 6px rgba(255, 255, 255, 0.95),
-    inset -2px -2px 6px rgba(201, 75, 26, 0.06),
-    0 20px 35px -8px rgba(201, 75, 26, 0.14),
-    0 8px 16px rgba(26, 17, 11, 0.04);
+  border-color: #C94B1A;
 }
 
 .clay-pill-active {
-  background: linear-gradient(135deg, #C94B1A 0%, #B33F14 100%);
+  background: #C94B1A;
   color: #FFFFFF;
-  box-shadow:
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.4),
-    inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.2),
-    0 8px 16px -4px rgba(201, 75, 26, 0.38);
+  border-radius: 0.5rem;
+  box-shadow: none;
 }
 
 .clay-pill-soft {
   background: #FDF4EF;
-  color: #C94B1A;
-  border: 1px solid #F5DED2;
-  box-shadow:
-    inset 1px 1px 2px rgba(255, 255, 255, 0.8),
-    inset -1px -1px 2px rgba(201, 75, 26, 0.05),
-    0 2px 6px rgba(201, 75, 26, 0.08);
+  color: #A83B14;
+  border: 1px solid #EFD8CA;
+  border-radius: 0.5rem;
+  box-shadow: none;
 }
 
 .clay-btn-primary {
-  background: linear-gradient(135deg, #C94B1A 0%, #B33F14 100%);
+  background: #C94B1A;
   color: #FFFFFF;
-  box-shadow:
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.45),
-    inset -1.5px -1.5px 3px rgba(0, 0, 0, 0.2),
-    0 10px 20px -5px rgba(201, 75, 26, 0.4);
-  transition: all 180ms ease;
+  border-radius: 0.5rem;
+  box-shadow: none;
+  transition: background-color 160ms ease;
 }
 
 .clay-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.5),
-    0 14px 24px -6px rgba(201, 75, 26, 0.45);
+  background: #B33F14;
 }
 
 .clay-btn-primary:active {
-  transform: translateY(0) scale(0.98);
+  background: #9E3611;
 }
 
 .clay-input {
-  background: #FAF7F2;
-  border: 1px solid #E8DFD5;
-  box-shadow:
-    inset 2px 2px 4px rgba(60, 40, 20, 0.04),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.9);
-  border-radius: 9999px;
-  transition: all 180ms ease;
+  background: #FFFFFF;
+  border: 1px solid #DFD7CA;
+  border-radius: 0.5rem;
+  box-shadow: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .clay-input:focus {
   background: #FFFFFF;
   border-color: #C94B1A;
-  box-shadow:
-    0 0 0 3px rgba(201, 75, 26, 0.15),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 3px rgba(201, 75, 26, 0.15);
+}
+
+html.dark .clay-card,
+html.dark .clay-card-flat {
+  background: #1C1613;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .clay-input {
+  background: #1E1714;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #F5EFEB;
+}
+
+html.dark .clay-pill-soft {
+  background: #2A1B14;
+  color: #E09F3E;
+  border-color: rgba(184, 135, 42, 0.3);
 }
 
 /* View Transition API Circular Ripple Animation (TikTok @settigation V14 Style) */

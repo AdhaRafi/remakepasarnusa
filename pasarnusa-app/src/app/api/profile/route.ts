@@ -1,6 +1,6 @@
-import { userService } from "@/services";
-import { getSession } from "@/lib/auth";
-import { apiSuccess, apiError, handleApiError } from "@/lib/api-response";
+import { userService } from "@/backend/services";
+import { getSession } from "@/backend/lib/auth";
+import { apiSuccess, apiError, handleApiError } from "@/backend/lib/api-response";
 
 export async function GET() {
   try {

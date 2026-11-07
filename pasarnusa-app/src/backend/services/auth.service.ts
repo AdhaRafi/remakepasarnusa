@@ -1,6 +1,6 @@
-import { supabaseAdmin, getNextId } from "@/lib/supabase";
-import { hashPassword, verifyPassword, createSession, clearSession } from "@/lib/auth";
-import { UserRole, SessionUser } from "@/types";
+import { supabaseAdmin } from "@/backend/lib/supabase";
+import { hashPassword, verifyPassword, createSession, clearSession } from "@/backend/lib/auth";
+import { UserRole, SessionUser } from "@/shared/types";
 
 export const authService = {
   async login(email: string, password: string): Promise<{ user: SessionUser; token: string }> {
@@ -62,12 +62,10 @@ export const authService = {
     }
 
     const passwordHash = await hashPassword(data.password);
-    const nextId = await getNextId("users");
 
     const { data: newUser, error } = await supabaseAdmin
       .from("users")
       .insert({
-        id: nextId,
         nama: data.nama.trim(),
         email: trimmedEmail,
         password: passwordHash,

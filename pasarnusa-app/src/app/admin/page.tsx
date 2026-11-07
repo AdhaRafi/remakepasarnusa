@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
-import ThemeToggle from "@/components/ThemeToggle";
-import { Order, Product, User as DbUser } from "@/lib/db";
+import { useAuth } from "@/frontend/context/AuthContext";
+import ThemeToggle from "@/frontend/components/ThemeToggle";
+import { Order, Product, User as DbUser } from "@/shared/db";
+import { resolveProfileImage, resolveProductImage } from "@/shared/media";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -40,8 +41,7 @@ export default function AdminPage() {
 
   const getAdminPhoto = (foto?: string | null) => {
     if (!foto) return null;
-    if (foto.startsWith("http") || foto.startsWith("/")) return foto;
-    return `/uploads/profil/${foto}`;
+    return resolveProfileImage(foto);
   };
 
   const [activeTab, setActiveTab] = useState<"dashboard" | "orders" | "products" | "users">("dashboard");
@@ -239,7 +239,7 @@ export default function AdminPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] rounded-2xl p-8 sm:p-10 max-w-md w-full text-center space-y-5 shadow-xl"
+          className="bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] rounded-2xl p-8 sm:p-10 max-w-md w-full text-center space-y-5"
         >
           <div className="w-14 h-14 rounded-xl bg-[#FAF2E6] dark:bg-[#251B14] text-[#C94B1A] flex items-center justify-center mx-auto border border-[#B8872A]/20">
             <Shield className="w-7 h-7" />
@@ -251,7 +251,7 @@ export default function AdminPage() {
           <div className="pt-2">
             <Link
               href="/masuk"
-              className="inline-flex h-12 items-center justify-center px-6 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] text-white text-sm font-bold w-full shadow-xs hover:shadow-md transition-all active:scale-[0.98]"
+              className="inline-flex h-12 items-center justify-center px-6 rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] text-white text-sm font-bold w-full hover:shadow-md transition-all active:scale-[0.98]"
             >
               Masuk sebagai Administrator
             </Link>
@@ -292,7 +292,7 @@ export default function AdminPage() {
               <span className="font-serif text-2xl font-bold tracking-tight text-[#1A110B]">
                 Pasar<span className="text-[#C94B1A]">Nusa.</span>
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FDF4EF] text-[#C94B1A] border border-[#C94B1A]/20">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FDF4EF] text-[#C94B1A] border border-[#C94B1A]/20">
                 Studio Admin
               </span>
             </Link>
@@ -340,7 +340,7 @@ export default function AdminPage() {
             <div className="h-6 w-[1px] bg-[#E2DBD1] hidden sm:block" />
 
             <div className="flex items-center gap-2.5 pl-1">
-              <div className="w-8 h-8 rounded-full bg-[#C94B1A] text-white font-bold flex items-center justify-center text-xs shadow-sm overflow-hidden flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#C94B1A] text-white font-bold flex items-center justify-center text-xs overflow-hidden flex-shrink-0">
                 {getAdminPhoto(user?.foto) ? (
                   <img src={getAdminPhoto(user?.foto)!} alt={user?.nama || "Admin"} className="w-full h-full object-cover" />
                 ) : (
@@ -365,9 +365,9 @@ export default function AdminPage() {
           {/* ================= SIDEBAR ================= */}
           <aside className="clay-card p-5 h-fit lg:sticky lg:top-8 space-y-6">
             {/* User Card Pill inside Sidebar with Vertical Theme Switcher */}
-            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#FDF4EF] to-[#FAF5EB] dark:from-[#221A15] dark:to-[#1A1410] border border-white dark:border-white/10 flex items-center justify-between gap-2 shadow-xs">
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#FDF4EF] to-[#FAF5EB] dark:from-[#221A15] dark:to-[#1A1410] border border-white dark:border-white/10 flex items-center justify-between gap-2">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-11 h-11 rounded-xl bg-[#C94B1A] text-white font-bold text-sm flex items-center justify-center shadow-md flex-shrink-0 overflow-hidden">
+                <div className="w-11 h-11 rounded-xl bg-[#C94B1A] text-white font-bold text-sm flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {getAdminPhoto(user?.foto) ? (
                     <img src={getAdminPhoto(user?.foto)!} alt={user?.nama || "Admin"} className="w-full h-full object-cover" />
                   ) : (
@@ -377,7 +377,7 @@ export default function AdminPage() {
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-[#1A110B] dark:text-[#FAF7F2] truncate">{user?.nama || "Administrator"}</p>
                   <p className="text-[11px] text-[#C94B1A] truncate font-medium">{user?.email || "admin@pasarnusa.id"}</p>
-                  <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-white/90 dark:bg-black/40 text-[#8A5912] dark:text-[#E09F3E] border border-[#B8872A]/20">
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-white/90 dark:bg-black/40 text-[#8A5912] dark:text-[#E09F3E] border border-[#B8872A]/20">
                     Master Admin
                   </span>
                 </div>
@@ -469,7 +469,7 @@ export default function AdminPage() {
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
                 {/* Left Column: Greeting, Stats & Actions */}
                 <div className="max-w-xl space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#C94B1A]">
+                  <p className="text-xs font-bold text-[#C94B1A]">
                     Sentra Kurasi &amp; Operasional · PasarNusa Studio
                   </p>
                   <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1A110B] dark:text-[#FAF7F2] leading-snug">
@@ -540,7 +540,7 @@ export default function AdminPage() {
                     title="Kain Batik Parang Tulis Asli Nusantara (Klik untuk pratinjau)"
                   >
                     {/* Clay Card Shell with Realistic Bevel and Shadow */}
-                    <div className="p-2.5 sm:p-3 rounded-[30px] bg-gradient-to-b from-white/95 to-[#FAF5EB]/90 backdrop-blur-md border border-white/90 shadow-[0_24px_50px_rgba(201,75,26,0.22),0_10px_22px_rgba(26,17,11,0.08),inset_0_2px_4px_rgba(255,255,255,1)] transition-all">
+                    <div className="p-2.5 sm:p-3 rounded-[30px] bg-gradient-to-b from-white/95 to-[#FAF5EB]/90 border border-white/90 shadow-[0_24px_50px_rgba(201,75,26,0.22),0_10px_22px_rgba(26,17,11,0.08),inset_0_2px_4px_rgba(255,255,255,1)] transition-all">
                       <div className="relative overflow-hidden rounded-[22px] w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48 shadow-[inset_0_2px_8px_rgba(0,0,0,0.18)]">
                         <img
                           src="/batik-banner.webp"
@@ -564,7 +564,7 @@ export default function AdminPage() {
                         repeat: Infinity,
                         ease: "easeInOut",
                       }}
-                      className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 clay-card-flat px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-[#C94B1A] border border-[#C94B1A]/20 bg-white/95 dark:bg-[#1A1411]/95 backdrop-blur-md shadow-md pointer-events-none"
+                      className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 clay-card-flat px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-[#C94B1A] border border-[#C94B1A]/20 bg-white/95 dark:bg-[#1A1411]/95 pointer-events-none"
                     >
                       <span>Batik Parang Asli</span>
                     </motion.div>
@@ -582,7 +582,7 @@ export default function AdminPage() {
                         ease: "easeInOut",
                         delay: 0.6,
                       }}
-                      className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 clay-card-flat px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-[#8A5912] border border-[#B8872A]/25 bg-white/95 dark:bg-[#1A1411]/95 backdrop-blur-md shadow-md pointer-events-none"
+                      className="absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 clay-card-flat px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-[#8A5912] border border-[#B8872A]/25 bg-white/95 dark:bg-[#1A1411]/95 pointer-events-none"
                     >
                       <span>100% Tulis Asli Nusantara</span>
                     </motion.div>
@@ -606,7 +606,7 @@ export default function AdminPage() {
                 className="clay-card p-5 sm:p-6 space-y-3 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FDF4EF] text-[#C94B1A] flex items-center justify-center shadow-xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FDF4EF] text-[#C94B1A] flex items-center justify-center">
                     <Wallet className="w-5 h-5" />
                   </div>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#EAF4EE] text-[#246E4A]">
@@ -629,7 +629,7 @@ export default function AdminPage() {
                 className="clay-card p-5 sm:p-6 space-y-3 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FAF5EB] text-[#8A5912] flex items-center justify-center shadow-xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FAF5EB] text-[#8A5912] flex items-center justify-center">
                     <ShoppingCart className="w-5 h-5" />
                   </div>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FDF4EF] text-[#C94B1A]">
@@ -652,7 +652,7 @@ export default function AdminPage() {
                 className="clay-card p-5 sm:p-6 space-y-3 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-[#FDF4EF] text-[#C94B1A] flex items-center justify-center shadow-xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FDF4EF] text-[#C94B1A] flex items-center justify-center">
                     <Package className="w-5 h-5" />
                   </div>
                   <span
@@ -679,7 +679,7 @@ export default function AdminPage() {
                 className="clay-card p-5 sm:p-6 space-y-3 cursor-pointer"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-11 h-11 rounded-2xl bg-[#EAF4EE] text-[#246E4A] flex items-center justify-center shadow-xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#EAF4EE] text-[#246E4A] flex items-center justify-center">
                     <Users className="w-5 h-5" />
                   </div>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#FAF5EB] text-[#8A5912]">
@@ -738,10 +738,10 @@ export default function AdminPage() {
                         <motion.div
                           whileHover={{ y: -3 }}
                           key={step.status}
-                          className="p-4 rounded-2xl bg-white border border-[#EAE4DC] space-y-2 shadow-2xs"
+                          className="p-4 rounded-2xl bg-white border border-[#EAE4DC] space-y-2"
                         >
                           <div className="flex items-center justify-between">
-                            <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${step.color}`}>
+                            <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${step.color}`}>
                               {step.label}
                             </span>
                             <span className="text-sm font-extrabold text-[#1A110B]">{step.count}</span>
@@ -775,7 +775,7 @@ export default function AdminPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-[#EAE4DC] text-[#8C7E72] uppercase font-bold text-[10px] tracking-wider">
+                          <tr className="border-b border-[#EAE4DC] text-[#8C7E72] font-bold text-[10px]">
                             <th className="py-3 px-3">No. Invoice</th>
                             <th className="py-3 px-3">Penerima</th>
                             <th className="py-3 px-3">Kurir</th>
@@ -789,7 +789,7 @@ export default function AdminPage() {
                             const badge = orderStatusBadges[ord.status] || orderStatusBadges.pending;
                             return (
                               <tr key={ord.id} className="hover:bg-[#FDF4EF]/40 transition-colors">
-                                <td className="py-3.5 px-3 font-mono font-bold text-[#C94B1A]">
+                                <td className="py-3.5 px-3 tabular-nums font-bold text-[#C94B1A]">
                                   {ord.order_number}
                                 </td>
                                 <td className="py-3.5 px-3">
@@ -857,11 +857,11 @@ export default function AdminPage() {
                         <motion.div
                           whileHover={{ y: -2 }}
                           key={ord.id}
-                          className="p-5 rounded-2xl bg-white border border-[#EAE4DC] shadow-xs space-y-3"
+                          className="p-5 rounded-2xl bg-white border border-[#EAE4DC] space-y-3"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-3 text-xs border-b border-[#EAE4DC] pb-3">
                             <div className="flex items-center gap-2.5">
-                              <span className="font-mono font-bold text-sm text-[#C94B1A]">#{ord.order_number}</span>
+                              <span className="tabular-nums font-bold text-sm text-[#C94B1A]">#{ord.order_number}</span>
                               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${badge.bg} ${badge.color}`}>
                                 {badge.label}
                               </span>
@@ -903,7 +903,7 @@ export default function AdminPage() {
                           </div>
 
                           <div className="pt-3 border-t border-[#EAE4DC] flex flex-wrap justify-between items-center text-xs">
-                            <span className="text-[#6B5E52]">Kurir: <strong className="text-[#1A110B]">{ord.kurir}</strong> | Pembayaran: <strong className="text-[#1A110B] uppercase">{ord.metode_pembayaran}</strong></span>
+                            <span className="text-[#6B5E52]">Kurir: <strong className="text-[#1A110B]">{ord.kurir}</strong> | Pembayaran: <strong className="text-[#1A110B]">{ord.metode_pembayaran}</strong></span>
                             <span className="font-serif font-bold text-base text-[#C94B1A]">
                               Total Bayar: Rp {ord.total_bayar.toLocaleString("id-ID")}
                             </span>
@@ -947,17 +947,17 @@ export default function AdminPage() {
                       <motion.div
                         whileHover={{ y: -4 }}
                         key={p.id}
-                        className="p-4 rounded-2xl bg-white border border-[#EAE4DC] space-y-3 shadow-xs"
+                        className="p-4 rounded-2xl bg-white border border-[#EAE4DC] space-y-3"
                       >
                         <div className="flex gap-3">
                           <img
-                            src={`/uploads/produk/${p.foto_produk}`}
+                            src={resolveProductImage(p.foto_produk)}
                             alt={p.nama_produk}
                             className="w-16 h-16 rounded-xl object-cover bg-[#E8DFD5] flex-shrink-0"
                             onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/pasar.jpg"; }}
                           />
                           <div className="min-w-0 flex-1">
-                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-[#FDF4EF] text-[#C94B1A]">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#FDF4EF] text-[#C94B1A]">
                               {p.kategori}
                             </span>
                             <h4 className="font-bold text-xs text-[#1A110B] truncate mt-1">{p.nama_produk}</h4>
@@ -1004,7 +1004,7 @@ export default function AdminPage() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-[#EAE4DC] text-[#8C7E72] uppercase font-bold text-[10px]">
+                        <tr className="border-b border-[#EAE4DC] text-[#8C7E72] font-bold text-[10px]">
                           <th className="py-3 px-3">Nama Pengguna</th>
                           <th className="py-3 px-3">Email</th>
                           <th className="py-3 px-3">Peran / Hak Akses</th>
@@ -1017,7 +1017,7 @@ export default function AdminPage() {
                         {usersList.map((u) => (
                           <tr key={u.id} className="hover:bg-[#FDF4EF]/40 transition-colors">
                             <td className="py-3 px-3 font-bold text-[#1A110B]">{u.nama}</td>
-                            <td className="py-3 px-3 text-[#6B5E52] font-mono">{u.email}</td>
+                            <td className="py-3 px-3 text-[#6B5E52] tabular-nums">{u.email}</td>
                             <td className="py-3 px-3">
                               {u.id === user.id ? (
                                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FDF4EF] text-[#C94B1A]">
@@ -1073,7 +1073,7 @@ export default function AdminPage() {
           <div
             role="dialog"
             aria-modal="true"
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
             onClick={() => setEditOrderModal(null)}
           >
             <motion.div
@@ -1181,7 +1181,7 @@ export default function AdminPage() {
           <div
             role="dialog"
             aria-modal="true"
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
             onClick={() => setAddProductModal(false)}
           >
             <motion.div

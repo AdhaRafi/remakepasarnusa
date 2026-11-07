@@ -3,7 +3,8 @@
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/frontend/context/CartContext";
+import { resolveProductImage } from "@/shared/media";
 import { X, ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
 
 export default function CartDrawer() {
@@ -61,11 +62,11 @@ export default function CartDrawer() {
       {/* Backdrop */}
       <div
         onClick={closeCart}
-        className="fixed inset-0 bg-[#1A1008]/60 backdrop-blur-xs transition-opacity duration-300"
+        className="fixed inset-0 bg-[#1A1008]/60 transition-opacity duration-300"
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white border-l border-[#DFD7CA] shadow-2xl flex flex-col">
+        <div className="w-screen max-w-md bg-white border-l border-[#DFD7CA] flex flex-col">
           
           {/* Header */}
           <div className="p-5 sm:p-6 border-b border-[#DFD7CA] flex items-center justify-between bg-[#F7F3EC]">
@@ -113,9 +114,9 @@ export default function CartDrawer() {
                   type="button"
                   onClick={() => {
                     closeCart();
-                    router.push("/#produk");
+                    router.push("/#katalog");
                   }}
-                  className="min-h-[44px] px-6 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition shadow-sm"
+                  className="min-h-[44px] px-6 py-2.5 bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold rounded-xl transition"
                 >
                   Mulai Pilih Karya
                 </button>
@@ -127,7 +128,7 @@ export default function CartDrawer() {
                     {/* Thumbnail */}
                     <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-[#EFE8DC] overflow-hidden flex-shrink-0 border border-[#DFD7CA]">
                       <img
-                        src={`/uploads/produk/${item.foto_produk}`}
+                        src={resolveProductImage(item.foto_produk)}
                         alt={item.nama_produk}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -140,7 +141,7 @@ export default function CartDrawer() {
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
                       <div>
                         <div className="flex items-start justify-between gap-2">
-                          <span className="text-[10px] font-bold text-[#8A5912] uppercase tracking-wider block">
+                          <span className="text-[10px] font-bold text-[#8A5912] block">
                             {item.kategori}
                           </span>
                           <button
@@ -217,7 +218,7 @@ export default function CartDrawer() {
                     closeCart();
                     router.push("/keranjang");
                   }}
-                  className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 py-3 text-sm font-bold text-white shadow-xs hover:shadow-md transition-all active:scale-[0.98]"
+                  className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#C94B1A] hover:bg-[#B33F14] px-4 py-3 text-sm font-bold text-white hover:shadow-md transition-all active:scale-[0.98]"
                 >
                   Lanjut ke Pembayaran
                 </button>
@@ -225,7 +226,7 @@ export default function CartDrawer() {
                 <Link
                   href="/keranjang"
                   onClick={closeCart}
-                  className="w-full min-h-[40px] px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-[#1A1008] hover:bg-[#EFE8DC] rounded-xl transition flex items-center justify-center"
+                  className="w-full min-h-[40px] px-4 py-2 text-center text-xs font-bold text-[#1A1008] hover:bg-[#EFE8DC] rounded-xl transition flex items-center justify-center"
                 >
                   Buka Halaman Keranjang Penuh
                 </Link>
