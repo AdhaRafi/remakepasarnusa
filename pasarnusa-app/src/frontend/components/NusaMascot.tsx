@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 
 interface NusaMascotProps {
   className?: string;
@@ -11,8 +14,9 @@ export default function NusaMascot({
   className = "",
   size = 56,
   variant = "waving",
-  animated = false,
+  animated = true,
 }: NusaMascotProps) {
+  // 1. Compact Head Avatar Variant (for chat message avatars)
   if (variant === "head") {
     return (
       <div
@@ -24,7 +28,7 @@ export default function NusaMascot({
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-sm"
+          className="w-full h-full drop-shadow-xs"
         >
           <defs>
             <linearGradient id="headBody" x1="20" y1="20" x2="80" y2="90" gradientUnits="userSpaceOnUse">
@@ -64,14 +68,15 @@ export default function NusaMascot({
     );
   }
 
-  // Full-body Mascot Waving Both Arms Happily (Exact replica from reference photo)
+  // 2. Full-Body Robot Mascot with Lively Waving Arms & Floating Animation (Inspired by reference video)
   return (
-    <div
-      className={`relative inline-flex items-center justify-center select-none ${className} ${
-        animated ? "transition-transform hover:scale-105" : ""
-      }`}
+    <motion.div
+      className={`relative inline-flex items-center justify-center select-none ${className}`}
       style={{ width: size, height: Math.round(size * 1.15) }}
       aria-hidden="true"
+      animate={animated ? { y: [0, -4, 0] } : undefined}
+      transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+      whileHover={{ scale: 1.08 }}
     >
       <svg
         viewBox="0 0 120 135"
@@ -107,8 +112,13 @@ export default function NusaMascot({
           </filter>
         </defs>
 
-        {/* --- Antenna: Golden Creative Spark --- */}
-        <g filter="url(#sparkFilter)">
+        {/* --- Antenna: Golden Creative Spark with subtle pulse --- */}
+        <motion.g
+          animate={animated ? { scale: [1, 1.1, 1], y: [0, -1, 0] } : undefined}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+          style={{ transformOrigin: "60px 25px" }}
+          filter="url(#sparkFilter)"
+        >
           <path
             d="M62 2 L54 14 L61 14 L56 25 L68 12 L61 12 Z"
             fill="url(#sparkGrad)"
@@ -116,51 +126,86 @@ export default function NusaMascot({
             strokeWidth="0.8"
             strokeLinejoin="round"
           />
-        </g>
+        </motion.g>
         {/* Antenna Base Mount */}
         <ellipse cx="60" cy="25" rx="5" ry="2.5" fill="#C94B1A" />
 
-        {/* --- Left Arm: Raised Up & Waving Happily --- */}
-        <path
-          d="M 36 62
-             C 24 55, 14 45, 12 34
-             C 11 29, 17 26, 21 30
-             C 26 36, 32 46, 40 56 Z"
-          fill="url(#bodyGrad)"
-          stroke="#D5C7B5"
-          strokeWidth="1.4"
-        />
+        {/* --- Left Arm: Animated Waving Up & Down --- */}
+        <motion.g
+          animate={
+            animated
+              ? {
+                  rotate: [-8, 14, -8],
+                }
+              : undefined
+          }
+          transition={{
+            repeat: Infinity,
+            duration: 1.3,
+            ease: "easeInOut",
+          }}
+          style={{ transformOrigin: "36px 62px" }}
+        >
+          <path
+            d="M 36 62
+               C 24 55, 14 45, 12 34
+               C 11 29, 17 26, 21 30
+               C 26 36, 32 46, 40 56 Z"
+            fill="url(#bodyGrad)"
+            stroke="#D5C7B5"
+            strokeWidth="1.4"
+          />
+        </motion.g>
 
-        {/* --- Right Arm: Raised Up & Waving Happily --- */}
-        <path
-          d="M 84 62
-             C 96 55, 106 45, 108 34
-             C 109 29, 103 26, 99 30
-             C 94 36, 88 46, 80 56 Z"
-          fill="url(#bodyGrad)"
-          stroke="#D5C7B5"
-          strokeWidth="1.4"
-        />
+        {/* --- Right Arm: Animated Waving Up & Down (Alternating Rhythm) --- */}
+        <motion.g
+          animate={
+            animated
+              ? {
+                  rotate: [8, -14, 8],
+                }
+              : undefined
+          }
+          transition={{
+            repeat: Infinity,
+            duration: 1.3,
+            ease: "easeInOut",
+            delay: 0.25,
+          }}
+          style={{ transformOrigin: "84px 62px" }}
+        >
+          <path
+            d="M 84 62
+               C 96 55, 106 45, 108 34
+               C 109 29, 103 26, 99 30
+               C 94 36, 88 46, 80 56 Z"
+            fill="url(#bodyGrad)"
+            stroke="#D5C7B5"
+            strokeWidth="1.4"
+          />
+        </motion.g>
 
-        {/* --- Little Feet / Legs --- */}
-        {/* Left Foot */}
-        <path
-          d="M 40 106
-             C 38 114, 40 124, 47 124
-             C 53 124, 53 116, 52 108 Z"
-          fill="url(#bodyGrad)"
-          stroke="#D5C7B5"
-          strokeWidth="1.4"
-        />
-        {/* Right Foot */}
-        <path
-          d="M 68 108
-             C 67 116, 67 124, 73 124
-             C 80 124, 82 114, 80 106 Z"
-          fill="url(#bodyGrad)"
-          stroke="#D5C7B5"
-          strokeWidth="1.4"
-        />
+        {/* --- Little Feet / Legs with subtle step motion --- */}
+        <g>
+          {/* Left Foot */}
+          <path
+            d="M 40 106
+               C 38 114, 40 124, 47 124
+               C 53 124, 53 116, 52 108 Z"
+            fill="url(#bodyGrad)"
+            stroke="#D5C7B5"
+            strokeWidth="1.4"
+          />
+          {/* Right Foot */}
+          <path
+            d="M 68 108
+               C 67 116, 67 124, 73 124
+               C 80 124, 82 114, 80 106 Z"
+            fill="url(#bodyGrad)"
+            stroke="#D5C7B5"
+            strokeWidth="1.4"
+          />
+        </g>
 
         {/* --- Main Capsule Body --- */}
         <path
@@ -183,7 +228,7 @@ export default function NusaMascot({
           opacity="0.9"
         />
 
-        {/* Body Horizontal Seam Line (as in reference image) */}
+        {/* Body Horizontal Seam Line */}
         <path
           d="M 28 82 Q 60 88 92 82"
           stroke="#D5C7B5"
@@ -216,28 +261,45 @@ export default function NusaMascot({
           opacity="0.3"
         />
 
-        {/* --- Happy Smiling Curved Eyes: ^ _ ^ --- */}
-        {/* Left Curved Eye */}
-        <path
-          d="M 47 57 Q 53 49 59 57"
-          stroke="#FFFBEB"
-          strokeWidth="2.8"
-          strokeLinecap="round"
-          fill="none"
-        />
-        {/* Right Curved Eye */}
-        <path
-          d="M 61 57 Q 67 49 73 57"
-          stroke="#FFFBEB"
-          strokeWidth="2.8"
-          strokeLinecap="round"
-          fill="none"
-        />
+        {/* --- Happy Smiling Curved Eyes with Gentle Blink: ^ _ ^ --- */}
+        <motion.g
+          animate={
+            animated
+              ? {
+                  scaleY: [1, 1, 0.1, 1, 1],
+                }
+              : undefined
+          }
+          transition={{
+            repeat: Infinity,
+            duration: 3.5,
+            times: [0, 0.9, 0.93, 0.96, 1],
+            ease: "easeInOut",
+          }}
+          style={{ transformOrigin: "60px 57px" }}
+        >
+          {/* Left Curved Eye */}
+          <path
+            d="M 47 57 Q 53 49 59 57"
+            stroke="#FFFBEB"
+            strokeWidth="2.8"
+            strokeLinecap="round"
+            fill="none"
+          />
+          {/* Right Curved Eye */}
+          <path
+            d="M 61 57 Q 67 49 73 57"
+            stroke="#FFFBEB"
+            strokeWidth="2.8"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </motion.g>
 
         {/* Cute Warm Terracotta Blush Cheeks */}
         <ellipse cx="42" cy="61" rx="2.8" ry="1.4" fill="#C94B1A" opacity="0.7" />
         <ellipse cx="78" cy="61" rx="2.8" ry="1.4" fill="#C94B1A" opacity="0.7" />
       </svg>
-    </div>
+    </motion.div>
   );
 }
