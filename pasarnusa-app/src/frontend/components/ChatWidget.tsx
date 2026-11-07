@@ -73,7 +73,7 @@ export default function ChatWidget() {
   const panelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-scroll when messages change or loading
+  // Auto-scroll when messages update
   useEffect(() => {
     if (!isOpen) return;
     const el = scrollRef.current;
@@ -186,7 +186,7 @@ export default function ChatWidget() {
 
   return (
     <div className="fixed z-50 bottom-0 right-3 sm:right-6 md:right-8 font-sans">
-      {/* 1. DOCKED MINIMIZED BAR (Screenshot 1: Nempel di dasar layar dengan maskot mengintip) */}
+      {/* 1. DOCKED MINIMIZED BAR WITH FULL STANDING WAVING MASCOT (Screenshot 1 & Screenshot 3) */}
       {!isOpen && (
         <button
           ref={barRef}
@@ -198,8 +198,9 @@ export default function ChatWidget() {
           aria-expanded={false}
           aria-haspopup="dialog"
           aria-label="Buka Nusa ChatBot"
-          className="group relative flex items-center justify-between gap-3 h-11 pl-4 pr-3 bg-[#C94B1A] dark:bg-[#B33F14] text-white rounded-t-xl rounded-b-none shadow-2xl cursor-pointer hover:bg-[#B33F14] transition-all select-none bottom-0 border-t-2 border-x-2 border-b-0 border-[#E06D43]"
+          className="group relative flex items-center justify-between gap-3 h-12 pl-4 pr-2 bg-[#C94B1A] dark:bg-[#B33F14] text-white rounded-t-xl rounded-b-none shadow-2xl cursor-pointer hover:bg-[#B33F14] transition-all select-none bottom-0 border-t-2 border-x-2 border-b-0 border-[#E06D43]"
         >
+          {/* Left: Title & Online dot */}
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[#34D399] inline-block animate-pulse" />
             <span className="text-xs sm:text-sm font-bold tracking-tight">
@@ -207,8 +208,9 @@ export default function ChatWidget() {
             </span>
           </div>
 
-          <div className="relative -mt-3.5 -mr-1 flex-shrink-0">
-            <NusaMascot size={46} animated={false} />
+          {/* Right: Full-Body Waving Mascot Standing at bottom right! */}
+          <div className="relative -mt-6 -mr-1 flex-shrink-0 transition-transform group-hover:scale-110">
+            <NusaMascot size={52} variant="waving" animated={true} />
           </div>
         </button>
       )}
@@ -220,7 +222,7 @@ export default function ChatWidget() {
           role="dialog"
           aria-modal="false"
           aria-label="Nusa ChatBot Window"
-          className="w-[min(94vw,370px)] rounded-t-xl rounded-b-none bg-[#140F0C] text-[#F5EFEB] shadow-2xl overflow-hidden flex flex-col bottom-0 border-t-2 border-x-2 border-b-0 border-[#C94B1A]"
+          className="w-[min(94vw,375px)] rounded-t-xl rounded-b-none bg-[#140F0C] text-[#F5EFEB] shadow-2xl overflow-hidden flex flex-col bottom-0 border-t-2 border-x-2 border-b-0 border-[#C94B1A]"
           style={{ height: "min(560px, 86vh)" }}
         >
           {/* Header Bar: Clean single-line header with title on left and minus dash on right */}
@@ -261,7 +263,7 @@ export default function ChatWidget() {
                   <div className="flex items-start gap-2.5 max-w-[92%]">
                     {/* Circular Mascot Avatar */}
                     <div className="w-8 h-8 rounded-full bg-[#231B16] border border-[#3A2B22] flex items-center justify-center flex-shrink-0 mt-0.5 overflow-hidden">
-                      <NusaMascot size={26} animated={false} />
+                      <NusaMascot size={26} variant="head" animated={false} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -386,13 +388,12 @@ export default function ChatWidget() {
             {loading && (
               <div className="flex items-start gap-2.5 max-w-[90%]">
                 <div className="w-8 h-8 rounded-full bg-[#231B16] border border-[#3A2B22] flex items-center justify-center flex-shrink-0 mt-0.5 overflow-hidden">
-                  <NusaMascot size={26} animated={false} />
+                  <NusaMascot size={26} variant="head" animated={false} />
                 </div>
                 <div>
                   <span className="text-[10px] text-[#A89D91] font-mono block mb-1">
                     {formatTimestamp()}
                   </span>
-                  {/* The 3 pulsing dots bubble (exact as in screenshot 2) */}
                   <div className="inline-flex items-center gap-1.5 px-4 py-3 rounded-xl bg-[#241C17] border border-[#382C24]">
                     <span className="w-2 h-2 rounded-full bg-[#A89D91] animate-bounce" style={{ animationDelay: "0ms" }} />
                     <span className="w-2 h-2 rounded-full bg-[#A89D91] animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -437,7 +438,7 @@ export default function ChatWidget() {
               <MoreVertical className="h-4 w-4" />
             </button>
 
-            {/* Input Field with 'Ask a question...' / 'Tulis pertanyaan...' placeholder */}
+            {/* Input Field with 'Ask a question...' placeholder */}
             <input
               ref={inputRef}
               type="text"
