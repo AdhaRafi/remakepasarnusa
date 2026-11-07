@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, SendHorizontal, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { X, SendHorizontal, Loader2, RotateCcw, ChevronDown } from "lucide-react";
 import { useCart } from "@/frontend/context/CartContext";
 import NusaMascot from "./NusaMascot";
 
@@ -63,9 +63,9 @@ export default function ChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const fabRef = useRef<HTMLButtonElement>(null);
+  const barRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-scroll on new messages
+  // Auto-scroll to bottom of messages
   useEffect(() => {
     if (!isOpen) return;
     const el = scrollRef.current;
@@ -80,15 +80,15 @@ export default function ChatWidget() {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsOpen(false);
-        fabRef.current?.focus();
+        barRef.current?.focus();
       }
     };
     const onClick = (e: MouseEvent) => {
       if (
         panelRef.current &&
         !panelRef.current.contains(e.target as Node) &&
-        fabRef.current &&
-        !fabRef.current.contains(e.target as Node)
+        barRef.current &&
+        !barRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -175,39 +175,66 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-[calc(68px+env(safe-area-inset-bottom)+12px)] right-4 z-50 md:bottom-6 md:right-6">
+    <div className="fixed z-50 bottom-0 right-3 sm:right-6 md:right-8">
+      {/* 1. DOCKED MINIMIZED BAR (Nempel di bawah layar persis seperti referensi) */}
+      {!isOpen && (
+        <button
+          ref={barRef}
+          type="button"
+          onClick={() => {
+            setIsOpen(true);
+            setTimeout(() => inputRef.current?.focus(), 150);
+          }}
+          aria-expanded={false}
+          aria-haspopup="dialog"
+          aria-label="Buka Nusa Virtual Assistant"
+          className="group relative flex items-center justify-between gap-3 h-12 pl-4 pr-3 bg-[#1A1008] dark:bg-[#0D0A08] border-t-2 border-x-2 border-b-0 border-[#C94B1A] rounded-t-2xl rounded-b-none shadow-2xl cursor-pointer hover:bg-[#2A180E] transition-all select-none bottom-0"
+        >
+          {/* Left: Title & Online dot */}
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#246E4A] inline-block shadow-xs" />
+            <span className="text-xs sm:text-sm font-bold text-[#F5EFEB] tracking-tight group-hover:text-white transition-colors">
+              Nusa Virtual Assistant
+            </span>
+          </div>
+
+          {/* Right: Mascot Peeking out with antenna above the bar */}
+          <div className="relative -mt-3.5 -mr-1 flex-shrink-0">
+            <NusaMascot size={46} animated={false} />
+          </div>
+        </button>
+      )}
+
+      {/* 2. DOCKED EXPANDED CHAT WINDOW (Nempel di bawah layar, membulat di atas) */}
       {isOpen && (
         <div
           ref={panelRef}
           role="dialog"
           aria-modal="false"
           aria-label="Chat dengan Nusa, Virtual Assistant PasarNusa"
-          className="absolute bottom-[calc(100%+12px)] right-0 w-[min(94vw,380px)] rounded-3xl border border-[#DFD7CA] dark:border-[#2C241E] bg-[#FAF8F5] dark:bg-[#181310] shadow-2xl overflow-hidden animate-scale-in flex flex-col"
-          style={{ maxHeight: "calc(100vh - 120px)" }}
+          className="w-[min(94vw,380px)] rounded-t-2xl rounded-b-none border-t-2 border-x-2 border-b-0 border-[#C94B1A] bg-[#FAF8F5] dark:bg-[#181310] shadow-2xl overflow-hidden flex flex-col bottom-0"
+          style={{ height: "min(560px, 85vh)" }}
         >
-          {/* Header (Layout like Lena reference, themed with PasarNusa Deep Espresso & Terracotta) */}
-          <div className="relative flex items-center justify-between px-4 py-3 bg-[#1A1008] dark:bg-[#0D0A08] border-b border-[#2A1D13] dark:border-[#1E1611] select-none">
-            {/* Subtle warm terracotta aura accent */}
-            <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-[#C94B1A]/15 blur-xl pointer-events-none" />
-
-            {/* Left: Title & Status */}
+          {/* Header: Sits docked on top with mascot peeking out */}
+          <div className="relative flex items-center justify-between px-4 h-13 bg-[#1A1008] dark:bg-[#0D0A08] border-b border-[#2A1D13] select-none flex-shrink-0">
+            {/* Left: Title & Subtitle */}
             <div className="flex-1 min-w-0 pr-2 z-10">
-              <h3 className="text-sm font-bold text-[#F5EFEB] tracking-tight">
+              <h3 className="text-sm font-bold text-[#F5EFEB] tracking-tight flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#246E4A] inline-block" />
                 Nusa Virtual Assistant
               </h3>
-              <p className="text-[11px] text-[#B8ADA2] font-medium flex items-center gap-1.5 mt-0.5">
-                <span className="w-2 h-2 rounded-full bg-[#246E4A] inline-block" />
+              <p className="text-[10px] text-[#B8ADA2] font-medium leading-tight mt-0.5">
                 Asisten Belanja PasarNusa • Siap Membantu
               </p>
             </div>
 
-            {/* Right: Mascot Avatar Peeking out from Header (Inspired by reference position) */}
+            {/* Right: Mascot Peeking + Control Buttons */}
             <div className="flex items-center gap-1 z-10">
-              <div className="cursor-pointer transition-transform hover:scale-105 active:scale-95" title="Nusa - Asisten Virtual PasarNusa">
+              <div className="relative -mt-3 flex-shrink-0 cursor-pointer" title="Nusa Asisten PasarNusa">
                 <NusaMascot size={46} animated={false} />
               </div>
 
-              {/* Reset Conversation Button */}
+              {/* Reset Button */}
               <button
                 type="button"
                 onClick={resetChat}
@@ -218,17 +245,18 @@ export default function ChatWidget() {
                 <RotateCcw className="h-4 w-4" />
               </button>
 
-              {/* Close Button */}
+              {/* Minimize / Close Button */}
               <button
                 type="button"
                 onClick={() => {
                   setIsOpen(false);
-                  fabRef.current?.focus();
+                  barRef.current?.focus();
                 }}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-[#B8ADA2] hover:text-[#F5EFEB] hover:bg-white/10 transition-colors"
-                aria-label="Tutup jendela chat"
+                aria-label="Tutup / Minimalkan chat"
+                title="Minimalkan"
               >
-                <X className="h-4 w-4" />
+                <ChevronDown className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -236,7 +264,7 @@ export default function ChatWidget() {
           {/* Messages Area */}
           <div
             ref={scrollRef}
-            className="flex-1 min-h-[300px] max-h-[380px] overflow-y-auto px-4 py-4 space-y-3.5 overscroll-contain bg-[#FAF8F5] dark:bg-[#181310]"
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-3.5 overscroll-contain bg-[#FAF8F5] dark:bg-[#181310]"
             aria-live="polite"
             aria-label="Percakapan"
           >
@@ -245,14 +273,14 @@ export default function ChatWidget() {
                 <div className="flex items-end gap-2 max-w-[90%]">
                   {msg.role === "bot" && (
                     <div className="flex-shrink-0 mb-1">
-                      <NusaMascot size={28} animated={false} />
+                      <NusaMascot size={26} animated={false} />
                     </div>
                   )}
 
                   <div
                     className={`rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-[#C94B1A] text-white rounded-br-sm shadow-sm"
+                        ? "bg-[#C94B1A] text-white rounded-br-sm shadow-xs"
                         : "bg-white dark:bg-[#231B16] text-[#1A1008] dark:text-[#F5EFEB] border border-[#DFD7CA] dark:border-[#2C241E] rounded-bl-sm shadow-xs"
                     }`}
                   >
@@ -323,7 +351,7 @@ export default function ChatWidget() {
                   </div>
                 )}
 
-                {/* Action button if provided */}
+                {/* Action button */}
                 {msg.action && (
                   <div className="mt-2 pl-8">
                     <button
@@ -360,7 +388,7 @@ export default function ChatWidget() {
             {loading && (
               <div className="flex items-end gap-2">
                 <div className="flex-shrink-0 mb-1">
-                  <NusaMascot size={28} animated={false} />
+                  <NusaMascot size={26} animated={false} />
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] px-3.5 py-2.5 shadow-xs">
                   <Loader2 className="h-3.5 w-3.5 text-[#C94B1A] animate-spin" />
@@ -378,7 +406,7 @@ export default function ChatWidget() {
               e.preventDefault();
               send(input);
             }}
-            className="flex items-center gap-2 border-t border-[#DFD7CA] dark:border-[#2C241E] p-3 bg-white dark:bg-[#1C1613]"
+            className="flex items-center gap-2 border-t border-[#DFD7CA] dark:border-[#2C241E] p-3 bg-white dark:bg-[#1C1613] flex-shrink-0"
           >
             <input
               ref={inputRef}
@@ -389,11 +417,12 @@ export default function ChatWidget() {
               maxLength={500}
               className="flex-1 h-10 rounded-xl bg-[#F7F3EC] dark:bg-[#231B16] border border-[#DFD7CA] dark:border-[#2C241E] px-3 text-xs text-[#1A1008] dark:text-[#F5EFEB] placeholder-[#8C7E72] focus:border-[#C94B1A] focus:outline-none transition-colors"
               aria-label="Tulis pertanyaan untuk Nusa"
-            />
+            >
+            </input>
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C94B1A] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#B33F14] active:scale-95 shadow-xs"
+              className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#C94B1A] text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#B33F14] active:scale-95 shadow-xs flex-shrink-0"
               aria-label="Kirim pesan"
             >
               <SendHorizontal className="h-4 w-4" fill="currentColor" />
@@ -401,45 +430,6 @@ export default function ChatWidget() {
           </form>
         </div>
       )}
-
-      {/* Floating Launcher Button (PasarNusa Deep Terracotta Theme) */}
-      <button
-        ref={fabRef}
-        type="button"
-        onClick={() => {
-          setIsOpen((prev) => !prev);
-          if (!isOpen) setTimeout(() => inputRef.current?.focus(), 150);
-        }}
-        aria-expanded={isOpen}
-        aria-haspopup="dialog"
-        aria-label={isOpen ? "Tutup chat dengan Nusa" : "Buka chat dengan Nusa, Virtual Assistant PasarNusa"}
-        className="group relative flex items-center gap-2.5 h-14 pl-2 pr-4 rounded-full bg-[#C94B1A] hover:bg-[#B33F14] text-white shadow-xl transition-all duration-200 active:scale-95 border border-[#E06D43]"
-      >
-        {isOpen ? (
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20">
-            <X className="h-5 w-5 text-white" />
-          </div>
-        ) : (
-          <>
-            <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <NusaMascot size={34} animated={false} />
-              </div>
-              {/* Online indicator */}
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#246E4A] border-2 border-[#C94B1A]" />
-            </div>
-            <div className="text-left hidden sm:block">
-              <p className="text-xs font-black text-white leading-none flex items-center gap-1">
-                Tanya Nusa
-                <Sparkles className="w-3 h-3 text-[#FCD34D]" />
-              </p>
-              <p className="text-[10px] text-white/80 font-medium leading-tight mt-0.5">
-                Virtual Assistant
-              </p>
-            </div>
-          </>
-        )}
-      </button>
     </div>
   );
 }
