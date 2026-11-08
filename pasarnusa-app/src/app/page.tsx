@@ -7,6 +7,7 @@ import Navbar from "@/frontend/components/Navbar";
 import Footer from "@/frontend/components/Footer";
 import ProductCard from "@/frontend/components/ProductCard";
 import ProductDetailModal from "@/frontend/components/ProductDetailModal";
+import HeroCarousel3D, { HeroSlide } from "@/frontend/components/HeroCarousel3D";
 import { Product } from "@/shared/db";
 import { useWishlist } from "@/frontend/context/WishlistContext";
 import {
@@ -25,9 +26,7 @@ import {
   Grid3X3,
   LayoutGrid,
   RotateCcw,
-  Truck,
   HeartHandshake,
-  ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 
@@ -61,10 +60,7 @@ function HomeContent() {
   // Hero Search input
   const [heroSearchInput, setHeroSearchInput] = useState("");
 
-  // Manual carousel state for the hero showcase
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-
-  const heroSlides = useMemo(
+  const heroSlides = useMemo<HeroSlide[]>(
     () => [
       {
         id: 2,
@@ -111,19 +107,18 @@ function HomeContent() {
         badge: "Robusta Ijen",
         image: "/uploads/produk/kopi_ijen.jpg",
       },
+      {
+        id: 1,
+        tag: "Mahakarya Seni Ukir",
+        title: "Ukiran Kayu Jati Relief Jepara",
+        desc: "Dipahat telaten dari kayu jati tua perhutani dengan ornamen flora khas Jawa.",
+        location: "Jepara, Jawa Tengah",
+        badge: "Kayu Jati",
+        image: "/uploads/produk/ukiran_kayu.jpg",
+      },
     ],
     []
   );
-
-  const handleNextSlide = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setCurrentSlideIndex((prev) => (prev + 1) % heroSlides.length);
-  };
-
-  const handlePrevSlide = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setCurrentSlideIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
-  };
 
   const fetchProducts = async (cat: string, query: string) => {
     setLoading(true);
@@ -241,7 +236,7 @@ function HomeContent() {
         {/* ======================================================== */}
         <section className="relative overflow-hidden pt-10 pb-16 lg:pt-16 lg:pb-24 border-b border-[#E7DFD4] dark:border-[#261E19]">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-7 lg:px-10">
-            <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div className="grid gap-10 lg:grid-cols-[1fr_1.15fr] lg:items-center">
               
               {/* Left Column: Story, Title, Search & Tags */}
               <div className="space-y-6 lg:space-y-8">
@@ -302,111 +297,19 @@ function HomeContent() {
                 </div>
               </div>
 
-              {/* Right Column: Interactive Artisan Showcase Endless Carousel */}
-              <div className="relative">
-                {/* Main Featured Showcase Card */}
-                <div className="relative rounded-2xl overflow-hidden bg-white dark:bg-[#181310] border border-[#E7DFD4] dark:border-[#2C211A] p-3 sm:p-4">
-                  
-                  {/* Top Slide Stage with Framer Motion Endless Transition */}
-                  <div
-                    onClick={() => {
-                      const p = products.find((item) => item.id === heroSlides[currentSlideIndex].id);
-                      if (p) {
-                        setSelectedProduct(p);
-                      } else {
-                        router.push(`/?search=${encodeURIComponent(heroSlides[currentSlideIndex].title)}#katalog`);
-                      }
-                    }}
-                    className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#F3EEE6] dark:bg-[#201814] cursor-pointer group"
-                  >
-                    <div className="absolute inset-0">
-                      <img
-                        src={heroSlides[currentSlideIndex].image}
-                        alt={heroSlides[currentSlideIndex].title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
-                    </div>
-
-                    {/* Top Left: Provenance Badge */}
-                    <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 rounded bg-black/70 px-3 py-1 text-xs font-semibold text-white pointer-events-none">
-                      <MapPin className="w-3.5 h-3.5 text-[#FFA07A]" />
-                      <span>{heroSlides[currentSlideIndex].location}</span>
-                    </div>
-
-                    {/* Top Right: Category Badge & Slide Counter */}
-                    <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-2">
-                      <span className="rounded bg-white/95 dark:bg-[#1A1411]/95 px-3 py-1 text-xs font-bold text-[#8A5912] dark:text-[#E09F3E] border border-[#B8872A]/30">
-                        {heroSlides[currentSlideIndex].badge}
-                      </span>
-                      <span className="rounded bg-black/70 px-2 py-1 text-[11px] font-semibold text-white/90">
-                        0{currentSlideIndex + 1}/0{heroSlides.length}
-                      </span>
-                    </div>
-
-                    {/* Floating Prev / Next Navigation Arrows */}
-                    <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between z-10 pointer-events-none">
-                      <button
-                        type="button"
-                        onClick={handlePrevSlide}
-                        aria-label="Karya Sebelumnya"
-                        className="pointer-events-auto h-9 w-9 rounded-full bg-black/45 hover:bg-black/75 text-white flex items-center justify-center transition-colors active:scale-95"
-                      >
-                        <ChevronLeft className="w-5 h-5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleNextSlide}
-                        aria-label="Karya Berikutnya"
-                        className="pointer-events-auto h-9 w-9 rounded-full bg-black/45 hover:bg-black/75 text-white flex items-center justify-center transition-colors active:scale-95"
-                      >
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    {/* Caption Overlay */}
-                    <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white z-10 pointer-events-none">
-                      <p className="text-[11px] font-semibold text-[#FFA07A]">
-                        {heroSlides[currentSlideIndex].tag}
-                      </p>
-                      <h3 className="font-serif text-xl sm:text-2xl font-bold mt-1 leading-snug line-clamp-1">
-                        {heroSlides[currentSlideIndex].title}
-                      </h3>
-                      <p className="text-xs text-white/85 mt-1 line-clamp-1">
-                        {heroSlides[currentSlideIndex].desc}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Thumbnail Strip */}
-                  <div className="flex items-center gap-2 sm:gap-2.5 mt-3 overflow-x-auto no-scrollbar py-0.5">
-                    {heroSlides.map((slide, idx) => {
-                      const isActive = currentSlideIndex === idx;
-                      return (
-                        <button
-                          key={slide.id}
-                          type="button"
-                          onClick={() => setCurrentSlideIndex(idx)}
-                          className={`relative flex-1 min-w-[58px] sm:min-w-[70px] rounded-lg overflow-hidden aspect-[4/3] bg-[#F3EEE6] dark:bg-[#201814] border transition-colors ${
-                            isActive
-                              ? "border-[#C94B1A]"
-                              : "border-[#E7DFD4] dark:border-[#2C211A] opacity-60 hover:opacity-100"
-                          }`}
-                        >
-                          <img
-                            src={slide.image}
-                            alt={slide.title}
-                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                          />
-                          <div className={`absolute inset-0 transition-colors ${isActive ? "bg-transparent" : "bg-black/30 hover:bg-black/10"}`} />
-                          <span className="absolute bottom-1 inset-x-1 text-[9px] font-semibold text-white bg-black/70 px-1 py-0.5 rounded-sm truncate text-center">
-                            {slide.badge}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+              {/* Right Column: 3D Artisan Showcase Coverflow Carousel (MZCode01 Style) */}
+              <div className="relative w-full max-w-full overflow-visible py-2">
+                <HeroCarousel3D
+                  slides={heroSlides}
+                  onSelectSlide={(slide) => {
+                    const p = products.find((item) => item.id === slide.id);
+                    if (p) {
+                      setSelectedProduct(p);
+                    } else {
+                      router.push(`/?search=${encodeURIComponent(slide.title)}#katalog`);
+                    }
+                  }}
+                />
               </div>
             </div>
           </div>
