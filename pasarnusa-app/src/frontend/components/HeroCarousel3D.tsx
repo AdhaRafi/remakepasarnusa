@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, MapPin, Eye, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface HeroSlide {
   id: number;
@@ -41,7 +41,7 @@ export default function HeroCarousel3D({
     setActiveIndex((prev) => (prev - 1 + total) % total);
   }, [total]);
 
-  // Auto-play timer that pauses on user hover
+  // Auto-play timer with pause on hover
   useEffect(() => {
     if (isHovered || autoPlayInterval <= 0 || total <= 1) return;
     timerRef.current = setInterval(handleNext, autoPlayInterval);
@@ -50,7 +50,7 @@ export default function HeroCarousel3D({
     };
   }, [isHovered, autoPlayInterval, total, handleNext]);
 
-  // Keyboard arrow navigation
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") handlePrev();
@@ -60,10 +60,9 @@ export default function HeroCarousel3D({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleNext, handlePrev]);
 
-  // Compute circular 3D transform for each card based on its relative offset
+  // Compute 3D coverflow transform for each card based on offset
   const getCardTransform = (index: number) => {
     let offset = index - activeIndex;
-    // Circular wrap around closest distance
     if (offset > total / 2) offset -= total;
     if (offset < -total / 2) offset += total;
 
@@ -81,11 +80,11 @@ export default function HeroCarousel3D({
       };
     }
 
-    // Immediate right
+    // Immediate right card
     if (offset === 1) {
       return {
         x: "56%",
-        z: -150,
+        z: -140,
         rotateY: -28,
         scale: 0.86,
         opacity: 0.78,
@@ -95,11 +94,11 @@ export default function HeroCarousel3D({
       };
     }
 
-    // Immediate left
+    // Immediate left card
     if (offset === -1) {
       return {
         x: "-56%",
-        z: -150,
+        z: -140,
         rotateY: 28,
         scale: 0.86,
         opacity: 0.78,
@@ -109,29 +108,29 @@ export default function HeroCarousel3D({
       };
     }
 
-    // Far right
+    // Far right card
     if (offset === 2) {
       return {
         x: "96%",
-        z: -300,
+        z: -280,
         rotateY: -42,
         scale: 0.72,
-        opacity: 0.38,
-        filter: "blur(3.5px)",
+        opacity: 0.4,
+        filter: "blur(3px)",
         zIndex: 10,
         pointerEvents: "auto" as const,
       };
     }
 
-    // Far left
+    // Far left card
     if (offset === -2) {
       return {
         x: "-96%",
-        z: -300,
+        z: -280,
         rotateY: 42,
         scale: 0.72,
-        opacity: 0.38,
-        filter: "blur(3.5px)",
+        opacity: 0.4,
+        filter: "blur(3px)",
         zIndex: 10,
         pointerEvents: "auto" as const,
       };
@@ -140,7 +139,7 @@ export default function HeroCarousel3D({
     // Hidden cards beyond 2 steps
     return {
       x: offset > 0 ? "130%" : "-130%",
-      z: -500,
+      z: -480,
       rotateY: offset > 0 ? -60 : 60,
       scale: 0.5,
       opacity: 0,
@@ -152,34 +151,21 @@ export default function HeroCarousel3D({
 
   return (
     <div
-      className={`relative w-full select-none ${className}`}
+      className={`relative w-full select-none group ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      aria-label="3D Image Carousel Mahakarya Nusantara"
+      aria-label="3D Image Carousel"
     >
       {/* 3D Stage Container (MZCode01 stage-container style) */}
       <div
-        className="relative w-full h-[400px] sm:h-[450px] lg:h-[480px] rounded-3xl overflow-hidden flex items-center justify-center bg-gradient-to-b from-[#F3ECE0] via-[#FAF7F2] to-[#ECE3D4] dark:from-[#1E1713] dark:via-[#140F0C] dark:to-[#0C0908] border border-[#E7DFD4] dark:border-[#2C211A] shadow-2xl"
+        className="relative w-full h-[380px] sm:h-[440px] lg:h-[470px] rounded-3xl overflow-hidden flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,#F5EFE6_0%,#E6DCCE_75%)] dark:bg-[radial-gradient(circle_at_50%_50%,#1F1813_0%,#0D0A08_75%)] border border-[#E7DFD4] dark:border-[#2C211A] shadow-2xl"
         style={{
           perspective: "1400px",
           transformStyle: "preserve-3d",
         }}
       >
-        {/* Subtle radial ambient spotlight in background */}
-        <div className="absolute inset-0 pointer-events-none opacity-60 dark:opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#C94B1A]/20 via-transparent to-transparent" />
-
-        {/* Floating Top Header Badges on Center Active Slide */}
-        <div className="absolute top-4 inset-x-5 z-40 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-2 rounded-full bg-black/60 dark:bg-black/80 backdrop-blur-md px-3.5 py-1.5 text-xs font-medium text-white shadow-md border border-white/10">
-            <Sparkles className="w-3.5 h-3.5 text-[#E09F3E]" />
-            <span>Mahakarya Kurasi</span>
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-[#1A1411]/90 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-[#8A5912] dark:text-[#E09F3E] border border-[#B8872A]/30 shadow-md">
-            <span>
-              {String(activeIndex + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-            </span>
-          </div>
-        </div>
+        {/* Subtle radial spotlight glow in background */}
+        <div className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#C94B1A]/20 via-transparent to-transparent" />
 
         {/* 3D Cards Stack */}
         <div
@@ -214,16 +200,16 @@ export default function HeroCarousel3D({
                     onSelectSlide(slide);
                   }
                 }}
-                className={`absolute w-[240px] sm:w-[270px] lg:w-[290px] h-[330px] sm:h-[370px] lg:h-[390px] rounded-2xl overflow-hidden cursor-pointer ${
+                className={`absolute w-[230px] sm:w-[260px] lg:w-[280px] h-[320px] sm:h-[370px] lg:h-[395px] rounded-2xl overflow-hidden cursor-pointer ${
                   isCenter
-                    ? "shadow-[0_22px_45px_rgba(26,17,11,0.35)] dark:shadow-[0_22px_45px_rgba(0,0,0,0.7)] ring-2 ring-[#C94B1A]/80 dark:ring-[#C94B1A]/60"
+                    ? "shadow-[0_25px_50px_rgba(0,0,0,0.45)] dark:shadow-[0_25px_50px_rgba(0,0,0,0.85)]"
                     : "shadow-[0_12px_28px_rgba(0,0,0,0.25)] hover:opacity-95"
                 } transition-shadow duration-300`}
                 style={{
                   transformStyle: "preserve-3d",
                 }}
               >
-                {/* Product Image */}
+                {/* Pure Product Image Card */}
                 <img
                   src={slide.image}
                   alt={slide.title}
@@ -231,107 +217,32 @@ export default function HeroCarousel3D({
                   className="w-full h-full object-cover select-none"
                 />
 
-                {/* Subtle glass reflection highlight */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-transparent pointer-events-none opacity-40" />
-
-                {/* Gradient vignette for text legibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-
-                {/* Top badges inside the card */}
-                <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10 pointer-events-none">
-                  <div className="flex items-center gap-1 rounded bg-black/65 backdrop-blur-sm px-2.5 py-1 text-[11px] font-medium text-white shadow">
-                    <MapPin className="w-3 h-3 text-[#FFA07A]" />
-                    <span className="truncate max-w-[120px]">{slide.location}</span>
-                  </div>
-                  <span className="rounded bg-[#C94B1A] px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-white shadow">
-                    {slide.badge}
-                  </span>
-                </div>
-
-                {/* Bottom Information (Active vs Inactive) */}
-                <div className="absolute inset-x-0 bottom-0 p-4 text-white z-10">
-                  <p className="text-[11px] font-semibold tracking-wide text-[#FFA07A] uppercase">
-                    {slide.tag}
-                  </p>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold mt-0.5 leading-snug line-clamp-1">
-                    {slide.title}
-                  </h3>
-                  <p className="text-xs text-white/80 mt-1 line-clamp-2 leading-relaxed">
-                    {slide.desc}
-                  </p>
-
-                  {/* Active Card CTA Button */}
-                  <AnimatePresence>
-                    {isCenter && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.25 }}
-                        className="mt-3.5 pt-2.5 border-t border-white/20 flex items-center justify-between"
-                      >
-                        <span className="text-xs font-semibold text-[#FFA07A] flex items-center gap-1.5">
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Klik untuk detail</span>
-                        </span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (onSelectSlide) onSelectSlide(slide);
-                          }}
-                          className="px-3.5 py-1.5 rounded-lg bg-[#C94B1A] hover:bg-[#B33F14] text-white text-xs font-bold shadow-md transition-transform active:scale-95 flex items-center gap-1"
-                        >
-                          <span>Buka Karya</span>
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                {/* Subtle soft edge highlight */}
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/10 dark:ring-white/10 pointer-events-none" />
               </motion.div>
             );
           })}
         </div>
 
-        {/* Floating Left Arrow Navigation */}
+        {/* Floating Left Arrow (Visible on hover or mobile) */}
         <button
           type="button"
           onClick={handlePrev}
-          aria-label="Karya Sebelumnya"
-          className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-40 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/40 hover:bg-black/75 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg group"
+          aria-label="Sebelumnya"
+          className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-40 h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-black/35 hover:bg-black/70 text-white backdrop-blur-md border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
         >
-          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform" />
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
-        {/* Floating Right Arrow Navigation */}
+        {/* Floating Right Arrow (Visible on hover or mobile) */}
         <button
           type="button"
           onClick={handleNext}
-          aria-label="Karya Berikutnya"
-          className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/40 hover:bg-black/75 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg group"
+          aria-label="Berikutnya"
+          className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-black/35 hover:bg-black/70 text-white backdrop-blur-md border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
         >
-          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
-
-        {/* Bottom Navigation Indicators (Pill Dots) */}
-        <div className="absolute bottom-4 inset-x-0 z-40 flex items-center justify-center gap-2">
-          {slides.map((_, idx) => {
-            const isActive = idx === activeIndex;
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setActiveIndex(idx)}
-                aria-label={`Pindah ke slide ${idx + 1}`}
-                className={`transition-all duration-300 rounded-full ${
-                  isActive
-                    ? "w-8 h-2 bg-[#C94B1A] shadow-md"
-                    : "w-2 h-2 bg-black/30 dark:bg-white/30 hover:bg-black/60 dark:hover:bg-white/60"
-                }`}
-              />
-            );
-          })}
-        </div>
       </div>
     </div>
   );
